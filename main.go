@@ -4,17 +4,21 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strings"
 )
 
 func main() {
-	switch len(os.Args) {
+	// [0] is the program name
+	args := os.Args[1:]
+	switch len(args) {
 	case 1:
-		runFile(os.Args[0])
+		runFile(args[0])
 	case 0:
+		fmt.Println("Starting interpreter...")
 		runPrompt()
 	default:
 		println("Usage: lox [path to script]")
-		panic(1)
+		os.Exit(1)
 	}
 
 }
@@ -23,7 +27,7 @@ func runFile(filePath string) {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
 		fmt.Println("couldn't read file: %v", err)
-		panic(1)
+		os.Exit(1)
 	}
 
 	run(string(data))
