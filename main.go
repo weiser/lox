@@ -7,6 +7,8 @@ import (
 	"strings"
 )
 
+var hadError bool = false
+
 func main() {
 	// [0] is the program name
 	args := os.Args[1:]
@@ -31,6 +33,9 @@ func runFile(filePath string) {
 	}
 
 	run(string(data))
+	if hadError {
+		os.Exit(1)
+	}
 }
 
 func run(data string) {
@@ -56,6 +61,12 @@ func runPrompt() {
 			break
 		}
 		run(line)
+		hadError = false
 		fmt.Print("> ")
 	}
+}
+
+func reportError(line int, message string) {
+	fmt.Println("Error! '", message, "'\n  line: ", line)
+	hadError = true
 }
