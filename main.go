@@ -41,6 +41,20 @@ func runFile(filePath string) {
 func run(data string) {
 	//TODO: maybe refactor runPrompt and runFile to pass a scanner into run?
 	scanner := bufio.NewScanner(strings.NewReader(data))
+	/* TODO: this scanner only splits on spaces.  E.g.
+		```
+		> howdy mom;
+		howdy
+		mom;
+		```
+	   and not:
+	    ```
+		> howdy mom;
+		howdy
+		mom
+		;
+		```
+	*/
 	scanner.Split(bufio.ScanWords)
 
 	for scanner.Scan() {
