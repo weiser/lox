@@ -34,7 +34,13 @@ func runFile(filePath string) {
 }
 
 func run(data string) {
-	// TOTO: start on page 41, implement run fxn.
+	//TODO: maybe refactor runPrompt and runFile to pass a scanner into run?
+	scanner := bufio.NewScanner(strings.NewReader(data))
+	scanner.Split(bufio.ScanWords)
+
+	for scanner.Scan() {
+		fmt.Println(scanner.Text())
+	}
 
 }
 
