@@ -28,7 +28,7 @@ func main() {
 func runFile(filePath string) {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
-		fmt.Println("couldn't read file: %v", err)
+		fmt.Println("couldn't read file: ", err)
 		os.Exit(1)
 	}
 

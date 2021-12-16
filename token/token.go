@@ -64,6 +64,6 @@ func MakeToken(typ TokenType, lexeme string, literal interface{}, lineno int) To
 	return Token{tokenType: typ, lexeme: lexeme, literal: literal, line: lineno}
 }
 
-func (t *Token) String() string {
-	return fmt.Sprintf("%v %v %v", t.tokenType, t.lexeme, t.literal)
+func (t Token) String() string {
+	return fmt.Sprintf("token=%v lexeme=%v literal=%v line=%v", t.tokenType, t.lexeme, t.literal, t.line)
 }
