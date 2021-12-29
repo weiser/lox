@@ -41,3 +41,15 @@ func TestScannerErrors(t *testing.T) {
 		}
 	}
 }
+
+func TestScannerTokenAndError(t *testing.T) {
+	scanner := MakeScanner(")@")
+	toks := scanner.ScanTokens()
+	errs := scanner.Errors
+	if len(errs) != 1 {
+		t.Errorf("should have one error. @ is not a valid lexeme")
+	}
+	if toks[0].TokenType != token.RIGHT_PAREN {
+		t.Errorf("token should be ')'. %v", toks)
+	}
+}
