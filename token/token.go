@@ -2,11 +2,11 @@ package token
 
 import "fmt"
 
-type TokenType int
+type TType int
 
 const (
 	// single character tokens
-	LEFT_PAREN TokenType = iota
+	LEFT_PAREN TType = iota
 	RIGHT_PAREN
 	LEFT_BRACE
 	RIGHT_BRACE
@@ -54,16 +54,16 @@ const (
 )
 
 type Token struct {
-	tokenType TokenType
-	lexeme    string
-	literal   interface{}
-	line      int
+	TokenType TType
+	Lexeme    string
+	Literal   interface{}
+	Line      int
 }
 
-func MakeToken(typ TokenType, lexeme string, literal interface{}, lineno int) Token {
-	return Token{tokenType: typ, lexeme: lexeme, literal: literal, line: lineno}
+func MakeToken(typ TType, lexeme string, literal interface{}, lineno int) Token {
+	return Token{TokenType: typ, Lexeme: lexeme, Literal: literal, Line: lineno}
 }
 
 func (t Token) String() string {
-	return fmt.Sprintf("token=%v lexeme=%v literal=%v line=%v", t.tokenType, t.lexeme, t.literal, t.line)
+	return fmt.Sprintf("token=%v lexeme=%v literal=%v line=%v", t.TokenType, t.Lexeme, t.Literal, t.Line)
 }
