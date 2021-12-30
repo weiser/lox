@@ -17,6 +17,7 @@ type Scanner struct {
 
 type Error struct {
 	Source               string
+	Message              string
 	Start, Current, Line int
 }
 
@@ -105,11 +106,31 @@ func (s *Scanner) scanToken() {
 		// ignore non-\n whitespace
 	case '\n':
 		s.Line += 1
+	case '"':
+		s.string()
 
 	default:
-		s.Errors = append(s.Errors, Error{Source: s.Source[s.Start:s.Current], Line: s.Line, Start: s.Start, Current: s.Current})
+		s.Errors = append(s.Errors, Error{Source: s.Source[s.Start:s.Current], Line: s.Line, Start: s.Start, Current: s.Current, Message: fmt.Sprintf("unknown token: %v", s.Source[s.Start:s.Current])})
 		fmt.Println("Error at line: ", s.Line, s.Source[s.Start:s.Current])
 	}
+}
+
+func (s *Scanner) string() {
+	for s.peek() != '"' && !s.isAtEnd() {
+		if s.peek() == '\n' {
+			s.Line += 1
+		}
+		s.advance()
+	}
+	if s.isAtEnd() {
+		s.Errors = append(s.Errors, Error{Source: s.Source[s.Start:s.Current], Line: s.Line, Start: s.Start, Current: s.Current, Message: "unterminated string"})
+		return
+
+	}
+	// the closing '"'
+	s.advance()
+	val := s.Source[s.Start+1 : s.Current-1]
+	s.addTokenWithObj(token.STRING, val)
 }
 
 func (s *Scanner) peek() rune {
@@ -147,5 +168,5 @@ func (s *Scanner) addToken(tok token.TType) {
 
 func (s *Scanner) addTokenWithObj(tok token.TType, obj interface{}) {
 	text := s.Source[s.Start:s.Current]
-	s.Tokens = append(s.Tokens, token.MakeToken(tok, text, nil, s.Line))
+	s.Tokens = append(s.Tokens, token.MakeToken(tok, text, obj, s.Line))
 }

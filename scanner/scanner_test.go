@@ -87,3 +87,12 @@ func TestScannerMultiline(t *testing.T) {
 		t.Errorf("token should be token.LEFT_PAREN, got %v", toks[0])
 	}
 }
+
+func TestScannerString(t *testing.T) {
+	scanner := MakeScanner(`"hi mom"`)
+	toks := scanner.ScanTokens()
+
+	if toks[0].TokenType != token.STRING && toks[0].Literal != "hi mom" {
+		t.Errorf("token should be token.STRING, got %v", toks[0])
+	}
+}
