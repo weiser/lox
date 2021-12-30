@@ -92,7 +92,27 @@ func TestScannerString(t *testing.T) {
 	scanner := MakeScanner(`"hi mom"`)
 	toks := scanner.ScanTokens()
 
-	if toks[0].TokenType != token.STRING && toks[0].Literal != "hi mom" {
+	if toks[0].TokenType != token.STRING {
 		t.Errorf("token should be token.STRING, got %v", toks[0])
+	}
+	if v, ok := toks[0].Literal.(string); ok {
+		if v != "hi mom" {
+			t.Errorf("token literal should be 'hi mom', got %v", toks[0])
+		}
+	}
+}
+
+func TestScannerNumber(t *testing.T) {
+	scanner := MakeScanner("1234")
+	toks := scanner.ScanTokens()
+
+	// fyi, on osx (with m1 chip) it looks like "debug test" doesn't work. see https://github.com/golang/go/issues/25841
+	if toks[0].TokenType != token.NUMBER {
+		t.Errorf("token should be token.NUMBER, got %v", toks[0])
+	}
+	if v, ok := toks[0].Literal.(float64); ok {
+		if v != 1234 {
+			t.Errorf("token Literal should be 1234, got %v", toks[0].Literal)
+		}
 	}
 }

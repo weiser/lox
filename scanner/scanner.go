@@ -2,6 +2,8 @@ package scanner
 
 import (
 	"fmt"
+	"strconv"
+	"unicode"
 
 	"github.com/weiser/lox/token"
 )
@@ -30,7 +32,7 @@ func MakeScanner(src string) Scanner {
 }
 
 func (s *Scanner) ScanTokens() []token.Token {
-	for i := 0; i < len(s.Source); i++ {
+	for s.Current < len(s.Source) {
 		s.Start = s.Current
 		if !s.isAtEnd() {
 			s.scanToken()
@@ -108,11 +110,36 @@ func (s *Scanner) scanToken() {
 		s.Line += 1
 	case '"':
 		s.string()
-
 	default:
-		s.Errors = append(s.Errors, Error{Source: s.Source[s.Start:s.Current], Line: s.Line, Start: s.Start, Current: s.Current, Message: fmt.Sprintf("unknown token: %v", s.Source[s.Start:s.Current])})
-		fmt.Println("Error at line: ", s.Line, s.Source[s.Start:s.Current])
+		if unicode.IsDigit(rune(s.Source[s.Current])) {
+			s.number()
+		} else {
+			s.Errors = append(s.Errors, Error{Source: s.Source[s.Start:s.Current], Line: s.Line, Start: s.Start, Current: s.Current, Message: fmt.Sprintf("unknown token: %v", s.Source[s.Start:s.Current])})
+			fmt.Println("Error at line: ", s.Line, s.Source[s.Start:s.Current])
+		}
 	}
+}
+
+func (s *Scanner) number() {
+	for ; unicode.IsDigit(s.peek()); s.advance() {
+	}
+	if s.peek() == '.' && unicode.IsDigit(s.peekNext()) {
+		s.advance()
+		for ; unicode.IsDigit(s.peek()); s.advance() {
+		}
+	}
+	if val, err := strconv.ParseFloat(s.Source[s.Start:s.Current], 64); err == nil {
+		s.addTokenWithObj(token.NUMBER, val)
+	} else {
+		s.Errors = append(s.Errors, Error{Source: s.Source[s.Start:s.Current], Line: s.Line, Start: s.Start, Current: s.Current, Message: fmt.Sprintf("bad number: %v", s.Source[s.Start:s.Current])})
+	}
+}
+
+func (s *Scanner) peekNext() rune {
+	if s.Current+1 >= len(s.Source) {
+		return 0
+	}
+	return rune(s.Source[s.Current])
 }
 
 func (s *Scanner) string() {
