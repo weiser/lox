@@ -101,6 +101,11 @@ func (s *Scanner) scanToken() {
 			for ; s.peek() != '\n' && !s.isAtEnd(); s.advance() {
 			}
 		}
+	case ' ', '\r', '\t':
+		// ignore non-\n whitespace
+	case '\n':
+		s.Line += 1
+
 	default:
 		s.Errors = append(s.Errors, Error{Source: s.Source[s.Start:s.Current], Line: s.Line, Start: s.Start, Current: s.Current})
 		fmt.Println("Error at line: ", s.Line, s.Source[s.Start:s.Current])

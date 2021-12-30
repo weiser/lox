@@ -72,3 +72,18 @@ func TestScannerComment(t *testing.T) {
 		t.Errorf("token should be token.EQUAL, got %v", toks[0])
 	}
 }
+
+func TestScannerMultiline(t *testing.T) {
+	scanner := MakeScanner(`
+	// comment
+	(( ))
+	!
+`)
+	toks := scanner.ScanTokens()
+	if len(toks) != 6 {
+		t.Errorf("got wrong number of tokens, got %v", toks)
+	}
+	if toks[0].TokenType != token.LEFT_PAREN {
+		t.Errorf("token should be token.LEFT_PAREN, got %v", toks[0])
+	}
+}
