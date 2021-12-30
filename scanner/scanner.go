@@ -113,6 +113,8 @@ func (s *Scanner) scanToken() {
 	default:
 		if unicode.IsDigit(rune(s.Source[s.Current])) {
 			s.number()
+		} else if unicode.IsLetter(rune(s.Source[s.Current])) {
+			s.identifier()
 		} else {
 			s.Errors = append(s.Errors, Error{Source: s.Source[s.Start:s.Current], Line: s.Line, Start: s.Start, Current: s.Current, Message: fmt.Sprintf("unknown token: %v", s.Source[s.Start:s.Current])})
 			fmt.Println("Error at line: ", s.Line, s.Source[s.Start:s.Current])
@@ -120,6 +122,39 @@ func (s *Scanner) scanToken() {
 	}
 }
 
+var keywords = map[string]token.TType{
+	"and":    token.AND,
+	"class":  token.CLASS,
+	"else":   token.ELSE,
+	"false":  token.FALSE,
+	"for":    token.FOR,
+	"fun":    token.FUN,
+	"if":     token.IF,
+	"nil":    token.NIL,
+	"or":     token.OR,
+	"print":  token.PRINT,
+	"return": token.RETURN,
+	"super":  token.SUPER,
+	"this":   token.THIS,
+	"true":   token.TRUE,
+	"var":    token.VAR,
+	"while":  token.WHILE,
+}
+
+func (s *Scanner) identifier() {
+	for ; s.isAlphanumeric(s.peek()); s.advance() {
+	}
+	text := s.Source[s.Start:s.Current]
+	toktype, exists := keywords[text]
+	if !exists {
+		toktype = token.IDENTIFIER
+	}
+	s.addTokenWithObj(toktype, text)
+}
+
+func (s *Scanner) isAlphanumeric(r rune) bool {
+	return unicode.IsLetter(r) || unicode.IsDigit(r)
+}
 func (s *Scanner) number() {
 	for ; unicode.IsDigit(s.peek()); s.advance() {
 	}

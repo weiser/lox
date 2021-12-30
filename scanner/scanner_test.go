@@ -116,3 +116,34 @@ func TestScannerNumber(t *testing.T) {
 		}
 	}
 }
+
+func TestScannerIdentifiers(t *testing.T) {
+	scanner := MakeScanner(`id
+	or
+	while
+	id2`)
+	toks := scanner.ScanTokens()
+
+	if toks[0].TokenType != token.IDENTIFIER {
+		t.Errorf("token should be identifier, got %v", toks[0])
+	}
+	v, ok := toks[0].Literal.(string)
+
+	if !ok || v != "id" {
+		t.Errorf("token should be id, got %v", v)
+	}
+	if toks[1].TokenType != token.OR {
+		t.Errorf("token should be OR, got %v", toks[1])
+	}
+	if toks[2].TokenType != token.WHILE {
+		t.Errorf("token should be WHILE, got %v", toks[2])
+	}
+	if toks[3].TokenType != token.IDENTIFIER {
+		t.Errorf("token should be identifier, got %v", toks[3])
+	}
+	v, ok = toks[3].Literal.(string)
+
+	if !ok || v != "id2" {
+		t.Errorf("token should be id2, got %v", v)
+	}
+}

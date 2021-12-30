@@ -38,6 +38,7 @@ const (
 	CLASS
 	ELSE
 	FALSE
+	TRUE
 	FUN
 	FOR
 	IF
