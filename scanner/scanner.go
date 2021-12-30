@@ -6,7 +6,7 @@ import (
 	"github.com/weiser/lox/token"
 )
 
-//TODO: start pg 45, section 4.4 The Scanner Class
+//TODO: start pg 49, section 4.6
 
 type Scanner struct {
 	Source               string
