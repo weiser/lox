@@ -61,3 +61,14 @@ func TestScannerTwoCharLexemes(t *testing.T) {
 		t.Errorf("token should be token.BANG_EQUAL, got %v", toks[0])
 	}
 }
+
+func TestScannerComment(t *testing.T) {
+	scanner := MakeScanner(`
+	// 123
+	=
+`)
+	toks := scanner.ScanTokens()
+	if toks[0].TokenType != token.EQUAL {
+		t.Errorf("token should be token.EQUAL, got %v", toks[0])
+	}
+}

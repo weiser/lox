@@ -96,10 +96,22 @@ func (s *Scanner) scanToken() {
 			ntt = token.GREATER
 		}
 		s.addToken(ntt)
+	case '/':
+		if s.match('/') {
+			for ; s.peek() != '\n' && !s.isAtEnd(); s.advance() {
+			}
+		}
 	default:
 		s.Errors = append(s.Errors, Error{Source: s.Source[s.Start:s.Current], Line: s.Line, Start: s.Start, Current: s.Current})
 		fmt.Println("Error at line: ", s.Line, s.Source[s.Start:s.Current])
 	}
+}
+
+func (s *Scanner) peek() rune {
+	if s.isAtEnd() {
+		return 0
+	}
+	return rune(s.Source[s.Current])
 }
 
 func (s *Scanner) isAtEnd() bool {
