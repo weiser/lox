@@ -31,7 +31,9 @@ func MakeScanner(src string) Scanner {
 func (s *Scanner) ScanTokens() []token.Token {
 	for i := 0; i < len(s.Source); i++ {
 		s.Start = s.Current
-		s.scanToken()
+		if !s.isAtEnd() {
+			s.scanToken()
+		}
 	}
 
 	s.Tokens = append(s.Tokens, token.Token{TokenType: token.EOF, Lexeme: "", Literal: nil, Line: s.Line})
@@ -61,16 +63,65 @@ func (s *Scanner) scanToken() {
 		s.addToken(token.SEMICOLON)
 	case '*':
 		s.addToken(token.STAR)
+	case '!':
+		var ntt token.TType
+		if s.match('=') {
+			ntt = token.BANG_EQUAL
+		} else {
+			ntt = token.BANG
+		}
+		s.addToken(ntt)
+	case '=':
+		var ntt token.TType
+		if s.match('=') {
+			ntt = token.EQUAL_EQUAL
+		} else {
+			ntt = token.EQUAL
+		}
+		s.addToken(ntt)
+	case '<':
+		var ntt token.TType
+		if s.match('=') {
+			ntt = token.LESS_EQUAL
+		} else {
+			ntt = token.LESS
+		}
+		s.addToken(ntt)
+
+	case '>':
+		var ntt token.TType
+		if s.match('=') {
+			ntt = token.GREATER_EQUAL
+		} else {
+			ntt = token.GREATER
+		}
+		s.addToken(ntt)
 	default:
 		s.Errors = append(s.Errors, Error{Source: s.Source[s.Start:s.Current], Line: s.Line, Start: s.Start, Current: s.Current})
 		fmt.Println("Error at line: ", s.Line, s.Source[s.Start:s.Current])
 	}
 }
 
+func (s *Scanner) isAtEnd() bool {
+	return s.Current >= len(s.Source)
+}
+
+func (s *Scanner) match(expected rune) bool {
+	if s.isAtEnd() {
+		return false
+	}
+	if string(s.Source[s.Current]) != string(expected) {
+		return false
+	}
+	s.Current += 1
+	return true
+}
+
 // TODO: returning a byte here is OK for now, but if we need to allow multi-type utf chars, it should be a rune.
 func (s *Scanner) advance() byte {
+	b := s.Source[s.Current]
 	s.Current += 1
-	return s.Source[s.Current-1]
+	return b
 }
 
 func (s *Scanner) addToken(tok token.TType) {
