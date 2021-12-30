@@ -101,8 +101,21 @@ func (s *Scanner) scanToken() {
 		s.addToken(ntt)
 	case '/':
 		if s.match('/') {
+			// single line comments
 			for ; s.peek() != '\n' && !s.isAtEnd(); s.advance() {
 			}
+		} else if s.match('*') {
+			// multi-line comments, e.g.
+			// ```
+			/*
+				line1
+				line2
+			*/
+			// ```
+			for ; !s.isAtEnd() && (s.peek() != '*' && s.peekNext() != '/'); s.advance() {
+			}
+			//skip past lass '/'
+			s.advance()
 		}
 	case ' ', '\r', '\t':
 		// ignore non-\n whitespace

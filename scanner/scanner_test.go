@@ -73,6 +73,22 @@ func TestScannerComment(t *testing.T) {
 	}
 }
 
+func TestScannerMultilineComment(t *testing.T) {
+	scanner := MakeScanner(`
+	/* 123
+	id
+	or */
+	=
+`)
+	toks := scanner.ScanTokens()
+	if len(toks) != 2 {
+		t.Errorf("should only have token.EQUAL and token.EOF.  Got %v", toks)
+	}
+	if toks[0].TokenType != token.EQUAL {
+		t.Errorf("token should be token.EQUAL, got %v", toks[0])
+	}
+}
+
 func TestScannerMultiline(t *testing.T) {
 	scanner := MakeScanner(`
 	// comment
