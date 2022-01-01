@@ -38,8 +38,21 @@ func defineAst(outputDir string, baseName string, types []string) {
 	defer f.Close()
 
 	writeWithNewline(f, "package expr")
+	writeWithNewline(f, "// DO NOT MODIFY. GENERATED VIA `cmd/tools/generateAst`")
+	writeWithNewline(f, `import . "github.com/weiser/lox/token"`)
 	writeWithNewline(f, fmt.Sprintf("type %v struct {", baseName))
 	writeWithNewline(f, "}")
+	writeWithNewline(f, fmt.Sprintf(`type %vInterface interface {
+		Accept(evi ExprVisitorInterface)
+	}`, baseName))
+
+	defineVisitor(f, baseName, types)
+
+	writeWithNewline(f, fmt.Sprintf("func (o *%v) Accept(evi ExprVisitorInterface) {", baseName))
+	writeWithNewline(f, "evi.VisitExpr(o)")
+	writeWithNewline(f, "}")
+
+	// define AST types
 	for _, typ := range types {
 		splits := strings.Split(typ, ":")
 
@@ -51,15 +64,39 @@ func defineAst(outputDir string, baseName string, types []string) {
 
 }
 
+func defineVisitor(f *os.File, baseName string, types []string) {
+	writeWithNewline(f, "type ExprVisitorInterface interface {")
+	writeWithNewline(f, fmt.Sprintf("Visit%v(e *%v)", baseName, baseName))
+	// each `type` has format `Type : ....`
+	for _, typ := range types {
+		splits := strings.Split(typ, ":")
+
+		exprType := strings.TrimSpace(splits[0])
+		writeWithNewline(f, fmt.Sprintf("Visit%v(e *%v)", exprType, exprType))
+	}
+	writeWithNewline(f, "}")
+
+}
+
 func defineType(f *os.File, baseName string, exprType string, fields string) {
 	writeWithNewline(f, fmt.Sprintf("type %v struct {", exprType))
 	writeWithNewline(f, fmt.Sprintf("*%v", baseName))
 	for _, field := range strings.Split(strings.TrimSpace(fields), ",") {
 		// field is 'Token operator'. needs to be "operator Token" in struct
-		fmt.Println("field is: '", field, "'")
 		fs := strings.Split(strings.TrimSpace(field), " ")
-		writeWithNewline(f, fmt.Sprintf("%v %v", fs[1], fs[0]))
+		fieldt := fs[0]
+		// "Object" is the java equivalent to "interface{}"
+		if fieldt == "Object" {
+			fieldt = "interface{}"
+		} else if fieldt == baseName {
+			fieldt += "Interface"
+		}
+		writeWithNewline(f, fmt.Sprintf("%v %v", strings.Title(fs[1]), fieldt))
 	}
+	writeWithNewline(f, "}")
+
+	writeWithNewline(f, fmt.Sprintf("func (o *%v) Accept(evi ExprVisitorInterface) {", exprType))
+	writeWithNewline(f, fmt.Sprintf("evi.Visit%v(o)", exprType))
 	writeWithNewline(f, "}")
 
 }
