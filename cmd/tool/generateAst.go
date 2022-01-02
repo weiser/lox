@@ -38,7 +38,7 @@ func defineAst(outputDir string, baseName string, types []string) {
 	defer f.Close()
 
 	writeWithNewline(f, "package expr")
-	writeWithNewline(f, "// DO NOT MODIFY. GENERATED VIA `cmd/tools/generateAst`")
+	writeWithNewline(f, "// DO NOT MODIFY. GENERATED VIA `go run cmd/tool/generateAst.go expr`")
 	writeWithNewline(f, `import . "github.com/weiser/lox/token"`)
 	writeWithNewline(f, fmt.Sprintf("type %v struct {", baseName))
 	writeWithNewline(f, "}")
