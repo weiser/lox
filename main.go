@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/weiser/lox/interpreter"
+	"github.com/weiser/lox/mainhelpers"
 )
 
 func main() {
@@ -12,11 +12,11 @@ func main() {
 	args := os.Args[1:]
 	switch len(args) {
 	case 1:
-		interpreter.RunFile(args[0])
+		mainhelpers.RunFile(args[0])
 	case 0:
-		fmt.Println("Starting interpreter...")
-		// TPDO INTERPRETER NOT WORK. START ON PG 94
-		interpreter.RunPrompt()
+		fmt.Println("Starting mainHelper...")
+		// TPDO mainHelper NOT WORK. START ON PG 94
+		mainhelpers.RunPrompt()
 	default:
 		println("Usage: lox [path to script]")
 		os.Exit(1)
