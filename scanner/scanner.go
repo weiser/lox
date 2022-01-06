@@ -116,6 +116,8 @@ func (s *Scanner) scanToken() {
 			}
 			//skip past lass '/'
 			s.advance()
+		} else {
+			s.addToken(token.SLASH)
 		}
 	case ' ', '\r', '\t':
 		// ignore non-\n whitespace
@@ -124,9 +126,9 @@ func (s *Scanner) scanToken() {
 	case '"':
 		s.string()
 	default:
-		if unicode.IsDigit(rune(s.Source[s.Current])) {
+		if unicode.IsDigit(rune(s.Source[s.Current-1])) {
 			s.number()
-		} else if unicode.IsLetter(rune(s.Source[s.Current])) {
+		} else if unicode.IsLetter(rune(s.Source[s.Current-1])) {
 			s.identifier()
 		} else {
 			s.Errors = append(s.Errors, Error{Source: s.Source[s.Start:s.Current], Line: s.Line, Start: s.Start, Current: s.Current, Message: fmt.Sprintf("unknown token: %v", s.Source[s.Start:s.Current])})

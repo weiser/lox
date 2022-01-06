@@ -1,4 +1,4 @@
-package main
+package playground
 
 import (
 	"fmt"
@@ -9,13 +9,13 @@ import (
 )
 
 type AstPrinter struct {
-	e  expr.ExprInterface
-	sb strings.Builder
+	E  expr.ExprInterface
+	Sb strings.Builder
 }
 
-func (a *AstPrinter) print() string {
-	a.e.Accept(a)
-	return a.sb.String()
+func (a *AstPrinter) Print() string {
+	a.E.Accept(a)
+	return a.Sb.String()
 }
 
 func (a *AstPrinter) VisitExpr(e *expr.Expr) {
@@ -32,9 +32,9 @@ func (a *AstPrinter) VisitGrouping(e *expr.Grouping) {
 
 func (a *AstPrinter) VisitLiteral(e *expr.Literal) {
 	if e.Value == nil {
-		a.sb.WriteString("nil")
+		a.Sb.WriteString("nil")
 	} else {
-		a.sb.WriteString(fmt.Sprintf("%v", e.Value))
+		a.Sb.WriteString(fmt.Sprintf("%v", e.Value))
 	}
 
 }
@@ -42,14 +42,14 @@ func (a *AstPrinter) VisitUnary(e *expr.Unary) {
 	a.parenthesize(e.Operator.Lexeme, e.Right)
 }
 func (a *AstPrinter) parenthesize(lexeme string, rest ...expr.ExprInterface) {
-	a.sb.WriteString("(")
-	a.sb.WriteString(lexeme)
+	a.Sb.WriteString("(")
+	a.Sb.WriteString(lexeme)
 	for _, expr := range rest {
-		a.sb.WriteString(" ")
+		a.Sb.WriteString(" ")
 		expr.Accept(a)
 
 	}
-	a.sb.WriteString(")")
+	a.Sb.WriteString(")")
 }
 
 func main() {
@@ -63,8 +63,8 @@ func main() {
 			Expression: &expr.Literal{Value: 45.67},
 		},
 	}
-	astp := AstPrinter{e: expr, sb: strings.Builder{}}
+	astp := AstPrinter{E: expr, Sb: strings.Builder{}}
 
-	fmt.Println(astp.print())
+	fmt.Println(astp.Print())
 
 }
