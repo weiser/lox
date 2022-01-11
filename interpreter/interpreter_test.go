@@ -9,9 +9,9 @@ import (
 func TestVisitLiteralExpr(t *testing.T) {
 	i := &Interpreter{}
 
-	literal := expr.Literal{Value: 5}
+	literal := &expr.Literal{Value: 5}
 
-	actual := i.visitLiteralExpr(literal)
+	actual := i.VisitLiteral(literal)
 	if actual != 5 {
 		t.Errorf("Expected 5, got %v", actual)
 	}

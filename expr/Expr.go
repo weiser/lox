@@ -6,18 +6,18 @@ import . "github.com/weiser/lox/token"
 type Expr struct {
 }
 type ExprInterface interface {
-	Accept(evi ExprVisitorInterface)
+	Accept(evi ExprVisitorInterface) interface{}
 }
 type ExprVisitorInterface interface {
-	VisitExpr(e *Expr)
-	VisitBinary(e *Binary)
-	VisitGrouping(e *Grouping)
-	VisitLiteral(e *Literal)
-	VisitUnary(e *Unary)
+	VisitExpr(e *Expr) interface{}
+	VisitBinary(e *Binary) interface{}
+	VisitGrouping(e *Grouping) interface{}
+	VisitLiteral(e *Literal) interface{}
+	VisitUnary(e *Unary) interface{}
 }
 
-func (o *Expr) Accept(evi ExprVisitorInterface) {
-	evi.VisitExpr(o)
+func (o *Expr) Accept(evi ExprVisitorInterface) interface{} {
+	return evi.VisitExpr(o)
 }
 
 type Binary struct {
@@ -27,8 +27,8 @@ type Binary struct {
 	Right    ExprInterface
 }
 
-func (o *Binary) Accept(evi ExprVisitorInterface) {
-	evi.VisitBinary(o)
+func (o *Binary) Accept(evi ExprVisitorInterface) interface{} {
+	return evi.VisitBinary(o)
 }
 
 type Grouping struct {
@@ -36,8 +36,8 @@ type Grouping struct {
 	Expression ExprInterface
 }
 
-func (o *Grouping) Accept(evi ExprVisitorInterface) {
-	evi.VisitGrouping(o)
+func (o *Grouping) Accept(evi ExprVisitorInterface) interface{} {
+	return evi.VisitGrouping(o)
 }
 
 type Literal struct {
@@ -45,8 +45,8 @@ type Literal struct {
 	Value interface{}
 }
 
-func (o *Literal) Accept(evi ExprVisitorInterface) {
-	evi.VisitLiteral(o)
+func (o *Literal) Accept(evi ExprVisitorInterface) interface{} {
+	return evi.VisitLiteral(o)
 }
 
 type Unary struct {
@@ -55,6 +55,6 @@ type Unary struct {
 	Right    ExprInterface
 }
 
-func (o *Unary) Accept(evi ExprVisitorInterface) {
-	evi.VisitUnary(o)
+func (o *Unary) Accept(evi ExprVisitorInterface) interface{} {
+	return evi.VisitUnary(o)
 }
