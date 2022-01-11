@@ -18,8 +18,40 @@ func (i *Interpreter) VisitGrouping(exp *expr.Grouping) interface{} {
 	return i.evaluate(exp.Expression)
 }
 
+// TODO: MAKE TESTS FOR THISstart page 102
 func (i *Interpreter) VisitBinary(exp *expr.Binary) interface{} {
-	// TODO
+	left := i.evaluate(exp.Left)
+	right := i.evaluate(exp.Right)
+
+	switch exp.Operator.TokenType {
+	case token.MINUS:
+		lv, _ := toFloat(left)
+		rv, _ := toFloat(right)
+		return lv - rv
+	case token.SLASH:
+		lv, _ := toFloat(left)
+		rv, _ := toFloat(right)
+		return lv / rv
+	case token.STAR:
+		lv, _ := toFloat(left)
+		rv, _ := toFloat(right)
+		return lv * rv
+	case token.PLUS:
+
+		lv, lok := toFloat(left)
+		rv, rok := toFloat(right)
+		if lok == nil && rok == nil {
+			return lv + rv
+		}
+
+		lv2, lok2 := left.(string)
+		rv2, rok2 := right.(string)
+		if rok2 && lok2 {
+			return lv2 + rv2
+		}
+
+	}
+
 	return nil
 }
 
@@ -74,5 +106,3 @@ func toTruthy(i interface{}) (bool, error) {
 	// at this point, it isn't a boolean value, so anything else is truthy
 	return true, nil
 }
-
-// TODO: start at pg 100, 7.2.2
