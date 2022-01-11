@@ -27,4 +27,10 @@ func TestVisitUnary(t *testing.T) {
 	if actual != -5.0 {
 		t.Errorf("Expected -5, got %v", actual)
 	}
+
+	unary2 := &expr.Unary{Operator: token.MakeToken(token.BANG, "!", nil, 1), Right: &expr.Literal{Value: true}}
+	actual2 := i.VisitUnary(unary2)
+	if actual2 != false {
+		t.Errorf("Expected false, got %v", actual2)
+	}
 }
