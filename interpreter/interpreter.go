@@ -1,6 +1,11 @@
 package interpreter
 
-import "github.com/weiser/lox/expr"
+import (
+	"fmt"
+
+	"github.com/weiser/lox/expr"
+	"github.com/weiser/lox/token"
+)
 
 type Interpreter struct {
 }
@@ -19,7 +24,14 @@ func (i *Interpreter) VisitBinary(exp *expr.Binary) interface{} {
 }
 
 func (i *Interpreter) VisitUnary(exp *expr.Unary) interface{} {
-	// TODO
+	right, err := toFloat(i.evaluate(exp.Right))
+	if err == nil {
+		switch exp.Operator.TokenType {
+		case token.MINUS:
+			return -right
+		}
+	}
+	fmt.Println("Tried to VisitUnary on ", exp, " and failed: ", err)
 	return nil
 }
 
@@ -30,6 +42,17 @@ func (i *Interpreter) VisitExpr(exp *expr.Expr) interface{} {
 
 func (i *Interpreter) evaluate(exp expr.ExprInterface) interface{} {
 	return exp.Accept(i)
+}
+
+func toFloat(i interface{}) (float64, error) {
+	switch v := i.(type) {
+	case float64:
+		return v, nil
+	case int64:
+		return float64(v), nil
+	}
+
+	return 0.0, fmt.Errorf(" %v could not be parsed as float", i)
 }
 
 // TODO: start at pg 100, 7.2.2
