@@ -23,6 +23,22 @@ func (i *Interpreter) VisitBinary(exp *expr.Binary) interface{} {
 	right := i.evaluate(exp.Right)
 
 	switch exp.Operator.TokenType {
+	case token.GREATER:
+		lv, _ := toFloat(left)
+		rv, _ := toFloat(right)
+		return lv > rv
+	case token.GREATER_EQUAL:
+		lv, _ := toFloat(left)
+		rv, _ := toFloat(right)
+		return lv >= rv
+	case token.LESS:
+		lv, _ := toFloat(left)
+		rv, _ := toFloat(right)
+		return lv < rv
+	case token.LESS_EQUAL:
+		lv, _ := toFloat(left)
+		rv, _ := toFloat(right)
+		return lv <= rv
 	case token.MINUS:
 		lv, _ := toFloat(left)
 		rv, _ := toFloat(right)
