@@ -34,3 +34,20 @@ func TestVisitUnary(t *testing.T) {
 		t.Errorf("Expected false, got %v", actual2)
 	}
 }
+
+func TestVisitBinary(t *testing.T) {
+	i := &Interpreter{}
+	bin1 := &expr.Binary{Operator: token.MakeToken(token.PLUS, "+", nil, 1), Right: &expr.Literal{Value: 5}, Left: &expr.Literal{Value: 6}}
+
+	actual1 := i.VisitBinary(bin1)
+	if actual1 != 11.0 {
+		t.Errorf("Expected 11, got %v", actual1)
+	}
+
+	bin2 := &expr.Binary{Operator: token.MakeToken(token.PLUS, "+", nil, 1), Right: &expr.Literal{Value: "i"}, Left: &expr.Literal{Value: "h"}}
+
+	actual2 := i.VisitBinary(bin2)
+	if actual2 != "hi" {
+		t.Errorf("Expected hi, got %v", actual2)
+	}
+}

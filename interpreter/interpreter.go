@@ -18,7 +18,6 @@ func (i *Interpreter) VisitGrouping(exp *expr.Grouping) interface{} {
 	return i.evaluate(exp.Expression)
 }
 
-// TODO: MAKE TESTS FOR THISstart page 102
 func (i *Interpreter) VisitBinary(exp *expr.Binary) interface{} {
 	left := i.evaluate(exp.Left)
 	right := i.evaluate(exp.Right)
@@ -90,6 +89,8 @@ func toFloat(i interface{}) (float64, error) {
 	case float64:
 		return v, nil
 	case int64:
+		return float64(v), nil
+	case int:
 		return float64(v), nil
 	}
 

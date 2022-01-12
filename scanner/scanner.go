@@ -8,8 +8,6 @@ import (
 	"github.com/weiser/lox/token"
 )
 
-//TODO: start pg 56, DESIGN NOTE: IMPLICIT SEMICOLONS
-
 type Scanner struct {
 	Source               string
 	Tokens               []token.Token
