@@ -10,6 +10,8 @@ import (
 type Interpreter struct {
 }
 
+//TODO: START ON 104, 7.3.1
+
 func (i *Interpreter) VisitLiteral(exp *expr.Literal) interface{} {
 	return exp.Value
 }
