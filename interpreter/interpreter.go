@@ -23,6 +23,10 @@ func (i *Interpreter) VisitBinary(exp *expr.Binary) interface{} {
 	right := i.evaluate(exp.Right)
 
 	switch exp.Operator.TokenType {
+	case token.BANG_EQUAL:
+		return !isEqual(left, right)
+	case token.EQUAL_EQUAL:
+		return isEqual(left, right)
 	case token.GREATER:
 		lv, _ := toFloat(left)
 		rv, _ := toFloat(right)
@@ -52,7 +56,6 @@ func (i *Interpreter) VisitBinary(exp *expr.Binary) interface{} {
 		rv, _ := toFloat(right)
 		return lv * rv
 	case token.PLUS:
-
 		lv, lok := toFloat(left)
 		rv, rok := toFloat(right)
 		if lok == nil && rok == nil {
@@ -64,7 +67,6 @@ func (i *Interpreter) VisitBinary(exp *expr.Binary) interface{} {
 		if rok2 && lok2 {
 			return lv2 + rv2
 		}
-
 	}
 
 	return nil
@@ -122,4 +124,8 @@ func toTruthy(i interface{}) (bool, error) {
 	}
 	// at this point, it isn't a boolean value, so anything else is truthy
 	return true, nil
+}
+
+func isEqual(l interface{}, r interface{}) bool {
+	return l == r
 }

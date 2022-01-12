@@ -57,4 +57,18 @@ func TestVisitBinary(t *testing.T) {
 	if actual3 != true {
 		t.Errorf("Expected true, got %v", actual3)
 	}
+
+	bin4 := &expr.Binary{Operator: token.MakeToken(token.EQUAL_EQUAL, "==", nil, 1), Right: &expr.Literal{Value: 5}, Left: &expr.Literal{Value: 5}}
+
+	actual4 := i.VisitBinary(bin4)
+	if actual4 != true {
+		t.Errorf("Expected true, got %v", actual4)
+	}
+
+	bin5 := &expr.Binary{Operator: token.MakeToken(token.BANG_EQUAL, "!=", nil, 1), Right: &expr.Literal{Value: 5}, Left: &expr.Literal{Value: 5}}
+
+	actual5 := i.VisitBinary(bin5)
+	if actual5 != false {
+		t.Errorf("Expected false, got %v", actual5)
+	}
 }
