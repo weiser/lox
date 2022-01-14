@@ -30,33 +30,54 @@ func (i *Interpreter) VisitBinary(exp *expr.Binary) interface{} {
 	case token.EQUAL_EQUAL:
 		return isEqual(left, right)
 	case token.GREATER:
-		lv, _ := toFloat(left)
-		rv, _ := toFloat(right)
-		return lv > rv
+		lv, lok := toFloat(left)
+		rv, rok := toFloat(right)
+		if rok == nil && lok == nil {
+			return lv > rv
+		}
+		fmt.Println("Tried to VisitBinary.GREATER and failed: ", left, right)
 	case token.GREATER_EQUAL:
-		lv, _ := toFloat(left)
-		rv, _ := toFloat(right)
-		return lv >= rv
+		lv, lok := toFloat(left)
+		rv, rok := toFloat(right)
+		if rok == nil && lok == nil {
+			return lv >= rv
+		}
+		fmt.Println("Tried to VisitBinary.GREATER_EQUAL and failed: ", left, right)
 	case token.LESS:
-		lv, _ := toFloat(left)
-		rv, _ := toFloat(right)
-		return lv < rv
+		lv, lok := toFloat(left)
+		rv, rok := toFloat(right)
+		if rok == nil && lok == nil {
+			return lv < rv
+		}
+		fmt.Println("Tried to VisitBinary.LESS and failed: ", left, right)
 	case token.LESS_EQUAL:
-		lv, _ := toFloat(left)
-		rv, _ := toFloat(right)
-		return lv <= rv
+		lv, lok := toFloat(left)
+		rv, rok := toFloat(right)
+		if rok == nil && lok == nil {
+			return lv <= rv
+		}
+		fmt.Println("Tried to VisitBinary.LESS_EQUAL and failed: ", left, right)
 	case token.MINUS:
-		lv, _ := toFloat(left)
-		rv, _ := toFloat(right)
-		return lv - rv
+		lv, lok := toFloat(left)
+		rv, rok := toFloat(right)
+		if rok == nil && lok == nil {
+			return lv - rv
+		}
+		fmt.Println("Tried to VisitBinary.MINUS and failed: ", left, right)
 	case token.SLASH:
-		lv, _ := toFloat(left)
-		rv, _ := toFloat(right)
-		return lv / rv
+		lv, lok := toFloat(left)
+		rv, rok := toFloat(right)
+		if rok == nil && lok == nil {
+			return lv / rv
+		}
+		fmt.Println("Tried to VisitBinary.SLASH and failed: ", left, right)
 	case token.STAR:
-		lv, _ := toFloat(left)
-		rv, _ := toFloat(right)
-		return lv * rv
+		lv, lok := toFloat(left)
+		rv, rok := toFloat(right)
+		if rok == nil && lok == nil {
+			return lv * rv
+		}
+		fmt.Println("Tried to VisitBinary.STAR and failed: ", left, right)
 	case token.PLUS:
 		lv, lok := toFloat(left)
 		rv, rok := toFloat(right)
@@ -69,6 +90,7 @@ func (i *Interpreter) VisitBinary(exp *expr.Binary) interface{} {
 		if rok2 && lok2 {
 			return lv2 + rv2
 		}
+		fmt.Println("Tried to VisitBinary.PLUS and failed: ", left, right)
 	}
 
 	return nil
