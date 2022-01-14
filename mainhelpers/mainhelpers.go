@@ -4,15 +4,15 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"strings"
 
+	"github.com/weiser/lox/interpreter"
 	"github.com/weiser/lox/parser"
-	"github.com/weiser/lox/playground/astPrinter"
 	"github.com/weiser/lox/scanner"
 	"github.com/weiser/lox/token"
 )
 
 var hadError bool
+var interpret *interpreter.Interpreter
 
 func RunFile(filePath string) {
 	data, err := os.ReadFile(filePath)
@@ -31,14 +31,14 @@ func Run(data string) {
 	scanner := scanner.MakeScanner(data)
 	parser := parser.Parser{Tokens: scanner.ScanTokens()}
 	exp, err := parser.Parse()
+	interpret = &interpreter.Interpreter{}
 
 	if err != nil {
 
 		//return  todo this is commented out b/c the "nil" error isn't nil
 	}
 
-	astp := &astPrinter.AstPrinter{E: exp, Sb: strings.Builder{}}
-	fmt.Println(astp.Print())
+	fmt.Println(">", interpret.Evaluate(exp))
 
 }
 

@@ -17,12 +17,12 @@ func (i *Interpreter) VisitLiteral(exp *expr.Literal) interface{} {
 }
 
 func (i *Interpreter) VisitGrouping(exp *expr.Grouping) interface{} {
-	return i.evaluate(exp.Expression)
+	return i.Evaluate(exp.Expression)
 }
 
 func (i *Interpreter) VisitBinary(exp *expr.Binary) interface{} {
-	left := i.evaluate(exp.Left)
-	right := i.evaluate(exp.Right)
+	left := i.Evaluate(exp.Left)
+	right := i.Evaluate(exp.Right)
 
 	switch exp.Operator.TokenType {
 	case token.BANG_EQUAL:
@@ -97,7 +97,7 @@ func (i *Interpreter) VisitBinary(exp *expr.Binary) interface{} {
 }
 
 func (i *Interpreter) VisitUnary(exp *expr.Unary) interface{} {
-	right := i.evaluate(exp.Right)
+	right := i.Evaluate(exp.Right)
 
 	switch exp.Operator.TokenType {
 	case token.MINUS:
@@ -122,8 +122,9 @@ func (i *Interpreter) VisitExpr(exp *expr.Expr) interface{} {
 	return nil
 }
 
-func (i *Interpreter) evaluate(exp expr.ExprInterface) interface{} {
-	return exp.Accept(i)
+func (i *Interpreter) Evaluate(exp expr.ExprInterface) interface{} {
+	value := exp.Accept(i)
+	return value
 }
 
 func toFloat(i interface{}) (float64, error) {
