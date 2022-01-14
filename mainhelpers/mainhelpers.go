@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/weiser/lox/parser"
-	"github.com/weiser/lox/playground"
+	"github.com/weiser/lox/playground/astPrinter"
 	"github.com/weiser/lox/scanner"
 	"github.com/weiser/lox/token"
 )
@@ -37,7 +37,7 @@ func Run(data string) {
 		//return  todo this is commented out b/c the "nil" error isn't nil
 	}
 
-	astp := &playground.AstPrinter{E: exp, Sb: strings.Builder{}}
+	astp := &astPrinter.AstPrinter{E: exp, Sb: strings.Builder{}}
 	fmt.Println(astp.Print())
 
 }
