@@ -30,7 +30,7 @@ func RunFile(filePath string) {
 func Run(data string) {
 	scanner := scanner.MakeScanner(data)
 	parser := parser.Parser{Tokens: scanner.ScanTokens()}
-	exp, err := parser.Parse()
+	stmts, err := parser.Parse()
 	interpret = &interpreter.Interpreter{}
 
 	if err != nil {
@@ -38,7 +38,7 @@ func Run(data string) {
 		//return  todo this is commented out b/c the "nil" error isn't nil
 	}
 
-	fmt.Println(">", interpret.Evaluate(exp))
+	interpret.Interpret(stmts)
 
 }
 

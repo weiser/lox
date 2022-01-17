@@ -114,6 +114,7 @@ func (s *Scanner) scanToken() {
 			}
 			//skip past lass '/'
 			s.advance()
+			s.advance()
 		} else {
 			s.addToken(token.SLASH)
 		}

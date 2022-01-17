@@ -122,9 +122,40 @@ func (i *Interpreter) VisitExpr(exp *expr.Expr) interface{} {
 	return nil
 }
 
+func (i *Interpreter) VisitStmt(exp *expr.Stmt) interface{} {
+	// TODO
+	return nil
+}
+
 func (i *Interpreter) Evaluate(exp expr.ExprInterface) interface{} {
 	value := exp.Accept(i)
 	return value
+}
+
+func (i *Interpreter) VisitExpression(stmt *expr.Expression) interface{} {
+	value := i.Evaluate(stmt.Expression)
+	return value
+}
+
+func (i *Interpreter) VisitPrint(stmt *expr.Print) interface{} {
+	value := i.Evaluate(stmt.Expression)
+	fmt.Println(value)
+	return value
+}
+
+func (i *Interpreter) EvaluateStmt(stmt expr.StmtInterface) interface{} {
+	value := stmt.Accept(i)
+	return value
+}
+
+func (i *Interpreter) Interpret(stmts []expr.StmtInterface) {
+	for _, stmt := range stmts {
+		i.Execute(stmt)
+	}
+}
+
+func (i *Interpreter) Execute(stmt expr.StmtInterface) {
+	stmt.Accept(i)
 }
 
 func toFloat(i interface{}) (float64, error) {

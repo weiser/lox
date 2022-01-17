@@ -1,6 +1,7 @@
 package expr
 
 // DO NOT MODIFY. GENERATED VIA `go run cmd/tool/generateAst.go expr`
+// TODO:  MAKE `cmd/tool/generateAst.go` format code
 import . "github.com/weiser/lox/token"
 
 type Expr struct {

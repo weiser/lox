@@ -21,7 +21,7 @@ type Parser struct {
 	Current int
 }
 
-func (p *Parser) Parse() (expr.ExprInterface, error) {
+func (p *Parser) Parse() ([]expr.StmtInterface, error) {
 	var pe ParserError
 	defer func() {
 		if err := recover(); err != nil {
@@ -35,7 +35,37 @@ func (p *Parser) Parse() (expr.ExprInterface, error) {
 			}
 		}
 	}()
-	return p.Expression(), &pe
+
+	stmts := make([]expr.StmtInterface, 0)
+	for !p.isAtEnd() {
+		stmts = append(stmts, p.Statement())
+	}
+	return stmts, &pe
+}
+
+func (p *Parser) Statement() expr.StmtInterface {
+	if p.match(token.PRINT) {
+		return p.PrintStatement()
+	}
+	return p.ExpressionStatement()
+}
+
+func (p *Parser) PrintStatement() expr.StmtInterface {
+	value := p.Expression()
+	_, err := p.consume(token.SEMICOLON, "expect ; after value")
+	if err != nil {
+		panic(err)
+	}
+	return &expr.Print{Expression: value}
+}
+
+func (p *Parser) ExpressionStatement() expr.StmtInterface {
+	value := p.Expression()
+	_, err := p.consume(token.SEMICOLON, "expect ; after value")
+	if err != nil {
+		panic(err)
+	}
+	return &expr.Expression{Expression: value}
 }
 
 func (p *Parser) Expression() expr.ExprInterface {

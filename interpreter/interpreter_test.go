@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"github.com/weiser/lox/expr"
+	"github.com/weiser/lox/parser"
+	"github.com/weiser/lox/scanner"
 	"github.com/weiser/lox/token"
 )
 
@@ -71,4 +73,28 @@ func TestVisitBinary(t *testing.T) {
 	if actual5 != false {
 		t.Errorf("Expected false, got %v", actual5)
 	}
+}
+
+func TestExprStmt(t *testing.T) {
+	scanner := scanner.MakeScanner("1+2;")
+	parser := parser.Parser{Tokens: scanner.ScanTokens()}
+	stmts, err := parser.Parse()
+	if err != nil {
+		t.Errorf("didn't parse, %v", err)
+	}
+	i := &Interpreter{}
+
+	i.Interpret(stmts)
+}
+
+func TestPrintStmt(t *testing.T) {
+	scanner := scanner.MakeScanner("print 1+2;")
+	parser := parser.Parser{Tokens: scanner.ScanTokens()}
+	stmts, err := parser.Parse()
+	if err != nil {
+		t.Errorf("didn't parse, %v", err)
+	}
+	i := &Interpreter{}
+
+	i.Interpret(stmts)
 }

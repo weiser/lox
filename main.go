@@ -7,7 +7,7 @@ import (
 	"github.com/weiser/lox/mainhelpers"
 )
 
-//TODO start page 111, chapter 8
+//TODO start page 114, chapter 8.1.3
 func main() {
 	// [0] is the program name
 	args := os.Args[1:]
@@ -16,7 +16,6 @@ func main() {
 		mainhelpers.RunFile(args[0])
 	case 0:
 		fmt.Println("Starting mainHelper...")
-		// TPDO mainHelper NOT WORK. START ON PG 94
 		mainhelpers.RunPrompt()
 	default:
 		println("Usage: lox [path to script]")
