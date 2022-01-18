@@ -133,14 +133,14 @@ func (i *Interpreter) Evaluate(exp expr.ExprInterface) interface{} {
 }
 
 func (i *Interpreter) VisitExpression(stmt *expr.Expression) interface{} {
-	value := i.Evaluate(stmt.Expression)
-	return value
+	i.Evaluate(stmt.Expression)
+	return nil
 }
 
 func (i *Interpreter) VisitPrint(stmt *expr.Print) interface{} {
 	value := i.Evaluate(stmt.Expression)
 	fmt.Println(value)
-	return value
+	return nil
 }
 
 func (i *Interpreter) EvaluateStmt(stmt expr.StmtInterface) interface{} {
