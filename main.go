@@ -7,7 +7,7 @@ import (
 	"github.com/weiser/lox/mainhelpers"
 )
 
-//TODO start chapter 8.5
+//TODO start challenges on pg 133
 func main() {
 	// [0] is the program name
 	args := os.Args[1:]
