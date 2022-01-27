@@ -3,14 +3,18 @@ package interpreter
 import (
 	"fmt"
 
+	"github.com/weiser/lox/environment"
 	"github.com/weiser/lox/expr"
 	"github.com/weiser/lox/token"
 )
 
 type Interpreter struct {
+	env environment.Environment
 }
 
-//TODO: START ON 104, 7.3.1
+func MakeInterpreter() Interpreter {
+	return Interpreter{env: environment.MakeEnvironment(nil)}
+}
 
 func (i *Interpreter) VisitLiteral(exp *expr.Literal) interface{} {
 	return exp.Value
@@ -143,6 +147,34 @@ func (i *Interpreter) VisitPrint(stmt *expr.Print) interface{} {
 	return nil
 }
 
+func (i *Interpreter) VisitVar(stmt *expr.Var) interface{} {
+	var value interface{}
+	value = nil
+	if stmt.Initializer != nil {
+		value = i.Evaluate(stmt.Initializer)
+	}
+
+	i.env.Define(stmt.Name.Lexeme, value)
+	return nil
+}
+
+func (i *Interpreter) VisitVariable(exp *expr.Variable) interface{} {
+	v, err := i.env.Get(exp.Name.Lexeme)
+	if err == nil {
+		return v
+	}
+	panic(err)
+}
+
+func (i *Interpreter) VisitAssign(exp *expr.Assign) interface{} {
+	value := i.Evaluate(exp.Value)
+	_, err := i.env.Assign(exp.Name.Lexeme, value)
+	if err != nil {
+		panic(err)
+	}
+	return value
+}
+
 func (i *Interpreter) EvaluateStmt(stmt expr.StmtInterface) interface{} {
 	value := stmt.Accept(i)
 	return value
@@ -156,6 +188,19 @@ func (i *Interpreter) Interpret(stmts []expr.StmtInterface) {
 
 func (i *Interpreter) Execute(stmt expr.StmtInterface) {
 	stmt.Accept(i)
+}
+
+// TODO text.lox isn't setting environmnents correctly
+func (i *Interpreter) VisitBlock(block *expr.Block) interface{} {
+	i.ExecuteBlock(block.Statements, environment.MakeEnvironment(&i.env))
+	return nil
+}
+
+func (i *Interpreter) ExecuteBlock(stmts []expr.StmtInterface, env environment.Environment) {
+	i2 := Interpreter{env: env}
+	for _, stmt := range stmts {
+		(&i2).Execute(stmt)
+	}
 }
 
 func toFloat(i interface{}) (float64, error) {

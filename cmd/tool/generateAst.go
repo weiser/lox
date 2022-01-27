@@ -16,16 +16,20 @@ func main() {
 	outputDir := args[0]
 
 	defineAst(outputDir, "Expr", []string{
+		"Assign : Token name, Expr value",
 		"Binary : Expr left, Token operator, Expr right",
 		"Grouping : Expr expression",
 		"Literal : Object value",
 		"Unary : Token operator, Expr right",
+		"Variable : Token name",
 	}, map[string]interface{}{})
 
 	defineAst(outputDir, "Stmt", []string{
+		"Block: []StmtInterface statements",
 		"Expression : Expr expression",
 		"Print : Expr expression",
-	}, map[string]interface{}{"NO_TOKEN_IMPORT": true, "INTERFACE_CLASS": "Expr"})
+		"Var : Token name, Expr initializer",
+	}, map[string]interface{}{"INTERFACE_CLASS": "Expr"})
 }
 
 // TODO: consider making a type that embeds *os.File that implements this, but also lets us format the golang code before we write it out

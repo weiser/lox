@@ -22,32 +22,62 @@ type Parser struct {
 }
 
 func (p *Parser) Parse() ([]expr.StmtInterface, error) {
-	var pe ParserError
+	stmts := make([]expr.StmtInterface, 0)
+	for !p.isAtEnd() {
+		stmts = append(stmts, p.Declaration())
+	}
+	return stmts, nil
+}
+
+func (p *Parser) Declaration() expr.StmtInterface {
 	defer func() {
 		if err := recover(); err != nil {
 			v, ok := err.(ParserError)
 			if ok {
 				fmt.Println("got an error: ", v)
-				pe = v
+				p.synchronize()
 			} else {
 				// any non-parsererror we will barf on
 				panic(v)
 			}
 		}
 	}()
-
-	stmts := make([]expr.StmtInterface, 0)
-	for !p.isAtEnd() {
-		stmts = append(stmts, p.Statement())
+	if p.match(token.VAR) {
+		return p.VarDeclaration()
 	}
-	return stmts, &pe
+	return p.Statement()
+}
+
+func (p *Parser) VarDeclaration() expr.StmtInterface {
+	name, _ := p.consume(token.IDENTIFIER, "Expected variable name")
+
+	var initializer expr.ExprInterface
+	if p.match(token.EQUAL) {
+		initializer = p.Expression()
+	}
+
+	p.consume(token.SEMICOLON, "expected ';' after variable declaration")
+	return &expr.Var{Name: name, Initializer: initializer}
+
 }
 
 func (p *Parser) Statement() expr.StmtInterface {
 	if p.match(token.PRINT) {
 		return p.PrintStatement()
 	}
+	if p.match(token.LEFT_BRACE) {
+		return &expr.Block{Statements: p.BlockStatement()}
+	}
 	return p.ExpressionStatement()
+}
+
+func (p *Parser) BlockStatement() []expr.StmtInterface {
+	stmts := make([]expr.StmtInterface, 0)
+	for !p.checkType(token.RIGHT_BRACE) && !p.isAtEnd() {
+		stmts = append(stmts, p.Declaration())
+	}
+	p.consume(token.RIGHT_BRACE, "expected '}' after block")
+	return stmts
 }
 
 func (p *Parser) PrintStatement() expr.StmtInterface {
@@ -69,7 +99,24 @@ func (p *Parser) ExpressionStatement() expr.StmtInterface {
 }
 
 func (p *Parser) Expression() expr.ExprInterface {
-	return p.Equality()
+	return p.Assignment()
+}
+
+func (p *Parser) Assignment() expr.ExprInterface {
+	exp := p.Equality()
+	if p.match(token.EQUAL) {
+		equals := p.previous()
+		value := p.Assignment()
+
+		if e, ok := exp.(*expr.Variable); ok {
+			identifier := e.Name
+			return &expr.Assign{Name: identifier, Value: value}
+		}
+
+		panic(MakeParserError(equals, "Invalid assignment target"))
+	}
+
+	return exp
 }
 
 func (p *Parser) Equality() expr.ExprInterface {
@@ -147,6 +194,9 @@ func (p *Parser) Primary() expr.ExprInterface {
 		} else {
 			panic(err)
 		}
+	}
+	if p.match(token.IDENTIFIER) {
+		return &expr.Variable{Name: p.previous()}
 	}
 	err := MakeParserError(p.peek(), "expected expression")
 	panic(err)

@@ -98,3 +98,52 @@ func TestPrintStmt(t *testing.T) {
 
 	i.Interpret(stmts)
 }
+
+func TestAssignStmt(t *testing.T) {
+	scanner := scanner.MakeScanner("var a = \"global\"; print a;")
+	parser := parser.Parser{Tokens: scanner.ScanTokens()}
+	stmts, err := parser.Parse()
+	if err != nil {
+		t.Errorf("didn't parse, %v", err)
+	}
+	i := MakeInterpreter()
+
+	(&i).Interpret(stmts)
+	o, _ := (&i).env.Get("a")
+	a := o.(string)
+	if a != "global" {
+		t.Errorf("expected a = 'global', ggot a = '%v'", a)
+	}
+
+}
+
+func TestBlockStmt(t *testing.T) {
+	scanner := scanner.MakeScanner(`
+	var a = 1;
+	var b = 2;
+	var c = 0;
+	{
+		var a = 3;
+		c = a + b;
+	}
+	`)
+	parser := parser.Parser{Tokens: scanner.ScanTokens()}
+	stmts, err := parser.Parse()
+	if err != nil {
+		t.Errorf("didn't parse, %v", err)
+	}
+	i := MakeInterpreter()
+
+	(&i).Interpret(stmts)
+	var a, b, c float64
+	o, _ := (&i).env.Get("a")
+	a = o.(float64)
+	o, _ = (&i).env.Get("b")
+	b = o.(float64)
+	o, _ = (&i).env.Get("c")
+	c = o.(float64)
+	if a != 1 || b != 2 || c != 5 {
+		t.Errorf("should have gotten a = 1, b = 2, c = 5. Got a = %v, b = %v, c = %v", a, b, c)
+	}
+
+}

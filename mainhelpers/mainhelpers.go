@@ -31,7 +31,8 @@ func Run(data string) {
 	scanner := scanner.MakeScanner(data)
 	parser := parser.Parser{Tokens: scanner.ScanTokens()}
 	stmts, err := parser.Parse()
-	interpret = &interpreter.Interpreter{}
+	i := interpreter.MakeInterpreter()
+	interpret = &i
 
 	if err != nil {
 

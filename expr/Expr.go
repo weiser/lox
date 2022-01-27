@@ -11,14 +11,26 @@ type ExprInterface interface {
 }
 type ExprVisitorInterface interface {
 	VisitExpr(e *Expr) interface{}
+	VisitAssign(e *Assign) interface{}
 	VisitBinary(e *Binary) interface{}
 	VisitGrouping(e *Grouping) interface{}
 	VisitLiteral(e *Literal) interface{}
 	VisitUnary(e *Unary) interface{}
+	VisitVariable(e *Variable) interface{}
 }
 
 func (o *Expr) Accept(evi ExprVisitorInterface) interface{} {
 	return evi.VisitExpr(o)
+}
+
+type Assign struct {
+	*Expr
+	Name  Token
+	Value ExprInterface
+}
+
+func (o *Assign) Accept(evi ExprVisitorInterface) interface{} {
+	return evi.VisitAssign(o)
 }
 
 type Binary struct {
@@ -58,4 +70,13 @@ type Unary struct {
 
 func (o *Unary) Accept(evi ExprVisitorInterface) interface{} {
 	return evi.VisitUnary(o)
+}
+
+type Variable struct {
+	*Expr
+	Name Token
+}
+
+func (o *Variable) Accept(evi ExprVisitorInterface) interface{} {
+	return evi.VisitVariable(o)
 }
