@@ -17,8 +17,9 @@ func (pe *ParserError) Error() string {
 }
 
 type Parser struct {
-	Tokens  []token.Token
-	Current int
+	Tokens     []token.Token
+	ParsingErr *ParserError
+	Current    int
 }
 
 func (p *Parser) Parse() ([]expr.StmtInterface, error) {
@@ -32,9 +33,9 @@ func (p *Parser) Parse() ([]expr.StmtInterface, error) {
 func (p *Parser) Declaration() expr.StmtInterface {
 	defer func() {
 		if err := recover(); err != nil {
-			v, ok := err.(ParserError)
+			v, ok := err.(*ParserError)
 			if ok {
-				fmt.Println("got an error: ", v)
+				p.ParsingErr = v
 				p.synchronize()
 			} else {
 				// any non-parsererror we will barf on

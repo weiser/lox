@@ -29,17 +29,19 @@ func RunFile(filePath string) {
 
 func Run(data string) {
 	scanner := scanner.MakeScanner(data)
-	parser := parser.Parser{Tokens: scanner.ScanTokens()}
-	stmts, err := parser.Parse()
+	toks := scanner.ScanTokens()
+	p := parser.Parser{Tokens: toks}
+	stmts, _ := p.Parse()
 	i := interpreter.MakeInterpreter()
 	interpret = &i
 
-	if err != nil {
-
-		//return  todo this is commented out b/c the "nil" error isn't nil
+	if p.ParsingErr != nil {
+		// try to parse as an expression
+		p1 := parser.Parser{Tokens: toks}
+		fmt.Println(interpret.Evaluate(p1.Expression()))
+	} else {
+		interpret.Interpret(stmts)
 	}
-
-	interpret.Interpret(stmts)
 
 }
 
