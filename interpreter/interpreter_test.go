@@ -147,3 +147,29 @@ func TestBlockStmt(t *testing.T) {
 	}
 
 }
+
+func TestIfStmt(t *testing.T) {
+	scanner := scanner.MakeScanner(`
+	var a = 1;
+	if (a > 0) {
+	  a = 2;
+	} else {
+	  a = 3;
+	}
+	`)
+	parser := parser.Parser{Tokens: scanner.ScanTokens()}
+	stmts, err := parser.Parse()
+	if err != nil {
+		t.Errorf("didn't parse, %v", err)
+	}
+	i := MakeInterpreter()
+
+	(&i).Interpret(stmts)
+	var a float64
+	o, _ := (&i).env.Get("a")
+	a = o.(float64)
+	if a != 2 {
+		t.Errorf("expected a = 2, instead a = %v", a)
+	}
+
+}

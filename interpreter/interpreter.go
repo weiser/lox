@@ -203,6 +203,18 @@ func (i *Interpreter) ExecuteBlock(stmts []expr.StmtInterface, env environment.E
 	}
 }
 
+func (i *Interpreter) VisitIf(ifStmt *expr.If) interface{} {
+	if v, ok := toTruthy(i.Evaluate(ifStmt.Condition)); ok == nil && v {
+		i.Execute(ifStmt.ThenBranch)
+	} else {
+		if ifStmt.ElseBranch != nil {
+			i.Execute(ifStmt.ElseBranch)
+		}
+	}
+
+	return nil
+}
+
 func toFloat(i interface{}) (float64, error) {
 	switch v := i.(type) {
 	case float64:
