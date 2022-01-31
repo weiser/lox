@@ -63,6 +63,9 @@ func (p *Parser) VarDeclaration() expr.StmtInterface {
 }
 
 func (p *Parser) Statement() expr.StmtInterface {
+	if p.match(token.IF) {
+		return p.IfStatement()
+	}
 	if p.match(token.PRINT) {
 		return p.PrintStatement()
 	}
@@ -70,6 +73,20 @@ func (p *Parser) Statement() expr.StmtInterface {
 		return &expr.Block{Statements: p.BlockStatement()}
 	}
 	return p.ExpressionStatement()
+}
+
+func (p *Parser) IfStatement() expr.StmtInterface {
+	p.consume(token.LEFT_PAREN, "Expect '(' after 'if'")
+	condition := p.Expression()
+	p.consume(token.RIGHT_PAREN, "Expect ')' after if condition")
+	thenBranch := p.Statement()
+	var elseBranch expr.StmtInterface
+	if p.match(token.ELSE) {
+		elseBranch = p.Statement()
+	}
+
+	return &expr.If{Condition: condition, ThenBranch: thenBranch, ElseBranch: elseBranch}
+
 }
 
 func (p *Parser) BlockStatement() []expr.StmtInterface {
