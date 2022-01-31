@@ -215,6 +215,20 @@ func (i *Interpreter) VisitIf(ifStmt *expr.If) interface{} {
 	return nil
 }
 
+func (i *Interpreter) VisitLogical(logical *expr.Logical) interface{} {
+	left := i.Evaluate(logical.Left)
+	if logical.Operator.TokenType == token.OR {
+		if v, ok := toTruthy(left); ok != nil && v {
+			return left
+		}
+	} else {
+		if v, ok := toTruthy(left); ok != nil && !v {
+			return left
+		}
+	}
+	return i.Evaluate(logical.Right)
+}
+
 func toFloat(i interface{}) (float64, error) {
 	switch v := i.(type) {
 	case float64:
