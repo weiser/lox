@@ -121,7 +121,7 @@ func (p *Parser) Expression() expr.ExprInterface {
 }
 
 func (p *Parser) Assignment() expr.ExprInterface {
-	exp := p.Equality()
+	exp := p.Or()
 	if p.match(token.EQUAL) {
 		equals := p.previous()
 		value := p.Assignment()
@@ -132,6 +132,29 @@ func (p *Parser) Assignment() expr.ExprInterface {
 		}
 
 		panic(MakeParserError(equals, "Invalid assignment target"))
+	}
+
+	return exp
+}
+
+func (p *Parser) Or() expr.ExprInterface {
+	exp := p.And()
+
+	for p.match(token.OR) {
+		operator := p.previous()
+		right := p.And()
+		exp = &expr.Logical{Left: exp, Operator: operator, Right: right}
+	}
+	return exp
+}
+
+func (p *Parser) And() expr.ExprInterface {
+	exp := p.Equality()
+
+	for p.match(token.AND) {
+		operator := p.previous()
+		right := p.And()
+		exp = &expr.Logical{Left: exp, Operator: operator, Right: right}
 	}
 
 	return exp

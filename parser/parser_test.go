@@ -17,3 +17,18 @@ func TestIfStmt(t *testing.T) {
 		t.Errorf("expected an If statement, got a %v", stmts[0])
 	}
 }
+
+func TestLogicalExpr(t *testing.T) {
+	scanner := scanner.MakeScanner(`var a = null or 1;`)
+	toks := scanner.ScanTokens()
+	p := Parser{Tokens: toks}
+	stmts, _ := p.Parse()
+
+	v, ok := stmts[0].(*expr.Var)
+	if !ok {
+		t.Errorf("expected an asignment statement, got a %v", stmts[0])
+	}
+	if _, ok := v.Initializer.(*expr.Logical); !ok {
+		t.Errorf("Expected a logical expro, got a, %v", v)
+	}
+}
