@@ -30,6 +30,7 @@ func main() {
 		"Expression : Expr expression",
 		"If : Expr condition, Stmt thenBranch, Stmt elseBranch",
 		"Print : Expr expression",
+		"While: Expr condition, Stmt body",
 		"Var : Token name, Expr initializer",
 	}, map[string]interface{}{"INTERFACE_CLASS": "Expr"})
 }

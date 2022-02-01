@@ -15,6 +15,7 @@ type StmtVisitorInterface interface {
 	VisitExpression(e *Expression) interface{}
 	VisitIf(e *If) interface{}
 	VisitPrint(e *Print) interface{}
+	VisitWhile(e *While) interface{}
 	VisitVar(e *Var) interface{}
 }
 
@@ -58,6 +59,16 @@ type Print struct {
 
 func (o *Print) Accept(evi StmtVisitorInterface) interface{} {
 	return evi.VisitPrint(o)
+}
+
+type While struct {
+	*Stmt
+	Condition ExprInterface
+	Body      StmtInterface
+}
+
+func (o *While) Accept(evi StmtVisitorInterface) interface{} {
+	return evi.VisitWhile(o)
 }
 
 type Var struct {
