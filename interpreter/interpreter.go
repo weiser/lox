@@ -229,6 +229,15 @@ func (i *Interpreter) VisitLogical(logical *expr.Logical) interface{} {
 	return i.Evaluate(logical.Right)
 }
 
+func (i *Interpreter) VisitWhile(stmt *expr.While) interface{} {
+	v, _ := toTruthy(i.Evaluate(stmt.Condition))
+	for v {
+		i.Execute(stmt.Body)
+		v, _ = toTruthy(i.Evaluate(stmt.Condition))
+	}
+	return nil
+}
+
 func toFloat(i interface{}) (float64, error) {
 	switch v := i.(type) {
 	case float64:
