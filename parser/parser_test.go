@@ -32,3 +32,17 @@ func TestLogicalExpr(t *testing.T) {
 		t.Errorf("Expected a logical expro, got a, %v", v)
 	}
 }
+
+func TestWhileStmt(t *testing.T) {
+	scanner := scanner.MakeScanner(`while (true) {
+		print 1;
+	}`)
+	toks := scanner.ScanTokens()
+	p := Parser{Tokens: toks}
+	stmts, _ := p.Parse()
+
+	_, ok := stmts[0].(*expr.While)
+	if !ok {
+		t.Errorf("expected a while statement, got a %v", stmts[0])
+	}
+}

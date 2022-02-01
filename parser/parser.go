@@ -69,10 +69,28 @@ func (p *Parser) Statement() expr.StmtInterface {
 	if p.match(token.PRINT) {
 		return p.PrintStatement()
 	}
+	if p.match(token.WHILE) {
+		return p.WhileStatement()
+	}
 	if p.match(token.LEFT_BRACE) {
 		return &expr.Block{Statements: p.BlockStatement()}
 	}
 	return p.ExpressionStatement()
+}
+
+func (p *Parser) WhileStatement() expr.StmtInterface {
+	_, err := p.consume(token.LEFT_PAREN, "Expect '(' after 'while'")
+	if err != nil {
+		panic(err)
+	}
+	condition := p.Expression()
+	_, err = p.consume(token.RIGHT_PAREN, "Expect ')' after condition in 'while'")
+	if err != nil {
+		panic(err)
+	}
+	body := p.Statement()
+
+	return &expr.While{Condition: condition, Body: body}
 }
 
 func (p *Parser) IfStatement() expr.StmtInterface {
