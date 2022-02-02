@@ -63,6 +63,9 @@ func (p *Parser) VarDeclaration() expr.StmtInterface {
 }
 
 func (p *Parser) Statement() expr.StmtInterface {
+	if p.match(token.FOR) {
+		return p.ForStatement()
+	}
 	if p.match(token.IF) {
 		return p.IfStatement()
 	}
@@ -76,6 +79,58 @@ func (p *Parser) Statement() expr.StmtInterface {
 		return &expr.Block{Statements: p.BlockStatement()}
 	}
 	return p.ExpressionStatement()
+}
+
+func (p *Parser) ForStatement() expr.StmtInterface {
+	_, err := p.consume(token.LEFT_PAREN, "Expect '(' after 'for'")
+	if err != nil {
+		panic(err)
+	}
+
+	var initializer expr.StmtInterface
+	if p.match(token.SEMICOLON) {
+		initializer = nil
+	} else if p.match(token.VAR) {
+		initializer = p.VarDeclaration()
+	} else {
+		initializer = p.ExpressionStatement()
+	}
+
+	var condition expr.ExprInterface
+	if !p.checkType(token.SEMICOLON) {
+		condition = p.Expression()
+	}
+	_, err = p.consume(token.SEMICOLON, "Expect ';' after for loop condition")
+	if err != nil {
+		panic(err)
+	}
+
+	var increment expr.ExprInterface
+	if !p.checkType(token.RIGHT_PAREN) {
+		increment = p.Expression()
+	}
+	_, err = p.consume(token.RIGHT_PAREN, "Expect ')' after for loop increment clause")
+	if err != nil {
+		panic(err)
+	}
+
+	body := p.Statement()
+
+	if increment != nil {
+		body = &expr.Block{Statements: []expr.StmtInterface{body, &expr.Expression{Expression: increment}}}
+	}
+
+	if condition == nil {
+		condition = &expr.Literal{Value: true}
+	}
+	body = &expr.While{Condition: condition, Body: body}
+
+	if initializer != nil {
+		body = &expr.Block{Statements: []expr.StmtInterface{initializer, body}}
+	}
+
+	return body
+
 }
 
 func (p *Parser) WhileStatement() expr.StmtInterface {

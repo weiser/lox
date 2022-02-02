@@ -46,3 +46,24 @@ func TestWhileStmt(t *testing.T) {
 		t.Errorf("expected a while statement, got a %v", stmts[0])
 	}
 }
+
+func TestForStmt(t *testing.T) {
+	scanner := scanner.MakeScanner(`for (var a= 1; a < 10; a = a+1) {
+		print 1;
+	}`)
+	toks := scanner.ScanTokens()
+	p := Parser{Tokens: toks}
+	stmts, _ := p.Parse()
+
+	block, ok := stmts[0].(*expr.Block)
+	if !ok {
+		t.Errorf("expected a Block statement, got a %v", stmts[0])
+	}
+
+	if _, ok := block.Statements[0].(*expr.Var); !ok {
+		t.Errorf("expected a Variableexpression statement, got a %v", block.Statements[0])
+	}
+	if _, ok := block.Statements[1].(*expr.While); !ok {
+		t.Errorf("expected a while statement, got a %v", block.Statements[1])
+	}
+}
