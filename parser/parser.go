@@ -63,6 +63,9 @@ func (p *Parser) VarDeclaration() expr.StmtInterface {
 }
 
 func (p *Parser) Statement() expr.StmtInterface {
+	if p.match(token.BREAK) {
+		return p.BreakStatement()
+	}
 	if p.match(token.FOR) {
 		return p.ForStatement()
 	}

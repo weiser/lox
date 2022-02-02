@@ -246,3 +246,34 @@ func TestForStmt(t *testing.T) {
 		t.Errorf("expected b = 9, instead b = %v", b)
 	}
 }
+
+func TestForStmtWithBreak(t *testing.T) {
+	scanner := scanner.MakeScanner(`
+	var a = 0;
+	var b = 1;
+	for (; a < 10; a = a + 1) {
+		break;
+		b = a;
+	}	
+	`)
+	parser := parser.Parser{Tokens: scanner.ScanTokens()}
+	stmts, err := parser.Parse()
+	if err != nil {
+		t.Errorf("didn't parse, %v", err)
+	}
+	i := MakeInterpreter()
+
+	(&i).Interpret(stmts)
+	var a float64
+	o, _ := (&i).env.Get("a")
+	a = o.(float64)
+	if a != 0 {
+		t.Errorf("expected a = 0, instead a = %v", a)
+	}
+	var b float64
+	o, _ = (&i).env.Get("b")
+	b = o.(float64)
+	if b != 1 {
+		t.Errorf("expected b = 1, instead b = %v", b)
+	}
+}

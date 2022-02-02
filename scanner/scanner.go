@@ -153,6 +153,7 @@ var keywords = map[string]token.TType{
 	"true":   token.TRUE,
 	"var":    token.VAR,
 	"while":  token.WHILE,
+	"break":  token.BREAK,
 }
 
 func (s *Scanner) identifier() {
