@@ -231,6 +231,8 @@ func (i *Interpreter) VisitLogical(logical *expr.Logical) interface{} {
 
 func (i *Interpreter) VisitWhile(stmt *expr.While) interface{} {
 	v, _ := toTruthy(i.Evaluate(stmt.Condition))
+	// todo pg 149 for implementing loops+break:
+	// if a stmt is a break, stop looping
 	for v {
 		i.Execute(stmt.Body)
 		v, _ = toTruthy(i.Evaluate(stmt.Condition))
