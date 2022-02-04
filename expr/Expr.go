@@ -13,6 +13,7 @@ type ExprVisitorInterface interface {
 	VisitExpr(e *Expr) interface{}
 	VisitAssign(e *Assign) interface{}
 	VisitBinary(e *Binary) interface{}
+	VisitCall(e *Call) interface{}
 	VisitGrouping(e *Grouping) interface{}
 	VisitLiteral(e *Literal) interface{}
 	VisitLogical(e *Logical) interface{}
@@ -43,6 +44,17 @@ type Binary struct {
 
 func (o *Binary) Accept(evi ExprVisitorInterface) interface{} {
 	return evi.VisitBinary(o)
+}
+
+type Call struct {
+	*Expr
+	Callee    ExprInterface
+	Paren     Token
+	Arguments []ExprInterface
+}
+
+func (o *Call) Accept(evi ExprVisitorInterface) interface{} {
+	return evi.VisitCall(o)
 }
 
 type Grouping struct {
