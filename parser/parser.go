@@ -293,7 +293,38 @@ func (p *Parser) Unary() expr.ExprInterface {
 		return &expr.Unary{Operator: operator, Right: right}
 	}
 
-	return p.Primary()
+	return p.Call()
+}
+
+func (p *Parser) Call() expr.ExprInterface {
+	exp := p.Primary()
+
+	for true {
+		if p.match(token.LEFT_PAREN) {
+			exp = p.FinishCall(exp)
+		} else {
+			break
+		}
+	}
+
+	return exp
+}
+
+func (p *Parser) FinishCall(callee expr.ExprInterface) expr.ExprInterface {
+	args := make([]expr.ExprInterface, 0)
+	if !p.checkType(token.RIGHT_PAREN) {
+		args = append(args, p.Expression())
+		for p.match(token.COMMA) {
+			if len(args) >= 255 {
+				panic(ParserError{Msg: "cannot have more than 255 args in function call"})
+			}
+			args = append(args, p.Expression())
+		}
+	}
+
+	paren, _ := p.consume(token.RIGHT_PAREN, "Expect ')' after arguments")
+
+	return &expr.Call{Callee: callee, Paren: paren, Arguments: args}
 }
 
 func (p *Parser) Primary() expr.ExprInterface {

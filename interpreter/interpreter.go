@@ -110,6 +110,8 @@ func (i *Interpreter) VisitBinary(exp *expr.Binary) interface{} {
 	return nil
 }
 
+// todo pg 154, 10.1.2 interpreting function calls
+
 func (i *Interpreter) VisitUnary(exp *expr.Unary) interface{} {
 	right := i.Evaluate(exp.Right)
 
@@ -248,7 +250,6 @@ func (i *Interpreter) VisitWhile(stmt *expr.While) interface{} {
 		}
 	}()
 	v, _ := toTruthy(i.Evaluate(stmt.Condition))
-	// todo pg 149 for implementing loops+break:
 	// if a stmt is a break, stop looping
 	for v {
 		i.Execute(stmt.Body)
