@@ -84,6 +84,15 @@ func (p *Parser) Statement() expr.StmtInterface {
 	return p.ExpressionStatement()
 }
 
+func (p *Parser) BreakStatement() expr.StmtInterface {
+	breakStmt := expr.Expression{Expression: &expr.Literal{Value: token.BREAK}}
+	_, err := p.consume(token.SEMICOLON, "Expect ';' after 'break'")
+	if err != nil {
+		panic(err)
+	}
+	return &breakStmt
+}
+
 func (p *Parser) ForStatement() expr.StmtInterface {
 	_, err := p.consume(token.LEFT_PAREN, "Expect '(' after 'for'")
 	if err != nil {

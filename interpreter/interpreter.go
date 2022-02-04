@@ -8,6 +8,13 @@ import (
 	"github.com/weiser/lox/token"
 )
 
+type ErrBreak struct {
+}
+
+func (e *ErrBreak) Error() string {
+	return fmt.Sprintf("Break encountered")
+}
+
 type Interpreter struct {
 	env environment.Environment
 }
@@ -17,6 +24,9 @@ func MakeInterpreter() Interpreter {
 }
 
 func (i *Interpreter) VisitLiteral(exp *expr.Literal) interface{} {
+	if exp.Value == token.BREAK {
+		panic(ErrBreak{})
+	}
 	return exp.Value
 }
 
@@ -230,6 +240,13 @@ func (i *Interpreter) VisitLogical(logical *expr.Logical) interface{} {
 }
 
 func (i *Interpreter) VisitWhile(stmt *expr.While) interface{} {
+	defer func() {
+		if err := recover(); err != nil {
+			if _, ok := err.(ErrBreak); !ok {
+				panic(err)
+			}
+		}
+	}()
 	v, _ := toTruthy(i.Evaluate(stmt.Condition))
 	// todo pg 149 for implementing loops+break:
 	// if a stmt is a break, stop looping
