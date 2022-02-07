@@ -26,8 +26,20 @@ type Interpreter struct {
 	env environment.Environment
 }
 
+var Globals environment.Environment = environment.MakeEnvironment(nil)
+
+type GlobalClock struct{}
+
+func (gclock *GlobalClock) Arity() int { return 0 }
+func (gclock *GlobalClock) Call(i *Interpreter, arguments []interface{}) interface{} {
+	return time.Now().UnixMilli()
+}
+func (gclock *GlobalClock) String() string {
+	return "<native fxn: global clock>"
+}
+
 func MakeInterpreter() Interpreter {
-	return Interpreter{env: environment.MakeEnvironment(nil)}
+	return Interpreter{env: Globals}
 }
 
 func (i *Interpreter) VisitLiteral(exp *expr.Literal) interface{} {
