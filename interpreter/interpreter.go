@@ -1,12 +1,19 @@
 package interpreter
 
 import (
+	"errors"
 	"fmt"
+	"time"
 
 	"github.com/weiser/lox/environment"
 	"github.com/weiser/lox/expr"
 	"github.com/weiser/lox/token"
 )
+
+type LoxCallable interface {
+	Arity() int
+	Call(i *Interpreter, arguments []interface{}) interface{}
+}
 
 type ErrBreak struct {
 }
@@ -110,7 +117,22 @@ func (i *Interpreter) VisitBinary(exp *expr.Binary) interface{} {
 	return nil
 }
 
-// todo pg 154, 10.1.2 interpreting function calls
+func (i *Interpreter) VisitCall(call *expr.Call) interface{} {
+	callee := i.Evaluate(call.Callee)
+	arguments := make([]interface{}, 0)
+	for _, arg := range call.Arguments {
+		arguments = append(arguments, i.Evaluate(arg))
+	}
+
+	fxn, ok := callee.(LoxCallable)
+	if !ok {
+		panic(errors.New(fmt.Sprintf("%v: Can only call functions and classes", call.Paren)))
+	}
+	if len(arguments) != fxn.Arity() {
+		panic(errors.New(fmt.Sprintf("Expected %v arguments, got %v arguments", fxn.Arity(), len(arguments))))
+	}
+	return fxn.Call(i, arguments)
+}
 
 func (i *Interpreter) VisitUnary(exp *expr.Unary) interface{} {
 	right := i.Evaluate(exp.Right)
@@ -202,7 +224,6 @@ func (i *Interpreter) Execute(stmt expr.StmtInterface) {
 	stmt.Accept(i)
 }
 
-// TODO text.lox isn't setting environmnents correctly
 func (i *Interpreter) VisitBlock(block *expr.Block) interface{} {
 	i.ExecuteBlock(block.Statements, environment.MakeEnvironment(&i.env))
 	return nil
