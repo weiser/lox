@@ -26,7 +26,7 @@ type Interpreter struct {
 	env environment.Environment
 }
 
-var Globals environment.Environment = environment.MakeEnvironment(nil)
+var Globals environment.Environment
 
 type GlobalClock struct{}
 
@@ -38,8 +38,16 @@ func (gclock *GlobalClock) String() string {
 	return "<native fxn: global clock>"
 }
 
+// TODO: start on pg 158 10.3 Function Declarations
+func InitGlobals() environment.Environment {
+	Globals = environment.MakeEnvironment(nil)
+	Globals.Define("clock", GlobalClock{})
+
+	return Globals
+}
+
 func MakeInterpreter() Interpreter {
-	return Interpreter{env: Globals}
+	return Interpreter{env: InitGlobals()}
 }
 
 func (i *Interpreter) VisitLiteral(exp *expr.Literal) interface{} {
