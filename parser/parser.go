@@ -43,10 +43,57 @@ func (p *Parser) Declaration() expr.StmtInterface {
 			}
 		}
 	}()
+	if p.match(token.FUN) {
+		return p.Function("function")
+	}
 	if p.match(token.VAR) {
 		return p.VarDeclaration()
 	}
 	return p.Statement()
+}
+
+func (p *Parser) Function(kind string) expr.StmtInterface {
+	name, err := p.consume(token.IDENTIFIER, fmt.Sprintf("Expect %v name", kind))
+	if err != nil {
+		panic(err)
+	}
+	_, perr := p.consume(token.LEFT_PAREN, fmt.Sprintf("Expect '(' after %v name", kind))
+	if perr != nil {
+		panic(perr)
+	}
+
+	parameters := make([]token.Token, 0)
+	if !p.checkType(token.RIGHT_PAREN) {
+		// consume 1 or more params
+		param, iderr := p.consume(token.IDENTIFIER, "Expect parameter name")
+		if iderr != nil {
+			panic(iderr)
+		}
+		parameters = append(parameters, param)
+		for p.match(token.COMMA) {
+			param, iderr = p.consume(token.IDENTIFIER, "Expect parameter name")
+			if iderr != nil {
+				panic(iderr)
+			}
+			parameters = append(parameters, param)
+			if len(parameters) >= 255 {
+				panic(ParserError{Msg: "cannot have more than 255 args in function call"})
+			}
+		}
+	}
+	_, rperr := p.consume(token.RIGHT_PAREN, "Expect ')' after parameters")
+	if rperr != nil {
+		panic(rperr)
+	}
+
+	_, lberr := p.consume(token.LEFT_BRACE, fmt.Sprintf("Expect '{' before %v body.", kind))
+	if lberr != nil {
+		panic(lberr)
+	}
+
+	body := p.BlockStatement()
+	fmt.Println("parsed function")
+	return &expr.Function{Name: name, Params: parameters, Body: body}
 }
 
 func (p *Parser) VarDeclaration() expr.StmtInterface {

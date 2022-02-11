@@ -10,6 +10,23 @@ import (
 	"github.com/weiser/lox/token"
 )
 
+type LoxFunction struct {
+	Declaration expr.Function
+}
+
+func (lf LoxFunction) Arity() int {
+	return len(lf.Declaration.Params)
+}
+
+func (lf LoxFunction) Call(i *Interpreter, arguments []interface{}) interface{} {
+	environment := environment.MakeEnvironment(&Globals)
+	for i, p := range lf.Declaration.Params {
+		environment.Define(p.Lexeme, arguments[i])
+	}
+	i.ExecuteBlock(lf.Declaration.Body, environment)
+	return nil
+}
+
 type LoxCallable interface {
 	Arity() int
 	Call(i *Interpreter, arguments []interface{}) interface{}
@@ -38,7 +55,6 @@ func (gclock *GlobalClock) String() string {
 	return "<native fxn: global clock>"
 }
 
-// TODO: start on pg 158 10.3 Function Declarations
 func InitGlobals() environment.Environment {
 	Globals = environment.MakeEnvironment(nil)
 	Globals.Define("clock", GlobalClock{})
@@ -192,6 +208,12 @@ func (i *Interpreter) Evaluate(exp expr.ExprInterface) interface{} {
 
 func (i *Interpreter) VisitExpression(stmt *expr.Expression) interface{} {
 	i.Evaluate(stmt.Expression)
+	return nil
+}
+
+func (i *Interpreter) VisitFunction(fxn *expr.Function) interface{} {
+	loxFxn := LoxFunction{Declaration: *fxn}
+	i.env.Define(fxn.Name.Lexeme, loxFxn)
 	return nil
 }
 

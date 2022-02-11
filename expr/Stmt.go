@@ -13,6 +13,7 @@ type StmtVisitorInterface interface {
 	VisitStmt(e *Stmt) interface{}
 	VisitBlock(e *Block) interface{}
 	VisitExpression(e *Expression) interface{}
+	VisitFunction(e *Function) interface{}
 	VisitIf(e *If) interface{}
 	VisitPrint(e *Print) interface{}
 	VisitWhile(e *While) interface{}
@@ -39,6 +40,17 @@ type Expression struct {
 
 func (o *Expression) Accept(evi StmtVisitorInterface) interface{} {
 	return evi.VisitExpression(o)
+}
+
+type Function struct {
+	*Stmt
+	Name   Token
+	Params []Token
+	Body   []StmtInterface
+}
+
+func (o *Function) Accept(evi StmtVisitorInterface) interface{} {
+	return evi.VisitFunction(o)
 }
 
 type If struct {

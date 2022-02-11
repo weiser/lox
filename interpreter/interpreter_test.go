@@ -277,3 +277,18 @@ func TestForStmtWithBreak(t *testing.T) {
 		t.Errorf("expected b = 1, instead b = %v", b)
 	}
 }
+
+func TestFunction(t *testing.T) {
+	scanner := scanner.MakeScanner(`
+	fun hi(a) {  print "hi, " + a + "!"; }
+	hi("mom");
+	`)
+	parser := parser.Parser{Tokens: scanner.ScanTokens()}
+	stmts, err := parser.Parse()
+	if err != nil {
+		t.Errorf("didn't parse, %v", err)
+	}
+	i := MakeInterpreter()
+
+	(&i).Interpret(stmts)
+}
