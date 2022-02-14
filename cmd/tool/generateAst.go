@@ -34,6 +34,7 @@ func main() {
 		"Print : Expr expression",
 		"While: Expr condition, Stmt body",
 		"Var : Token name, Expr initializer",
+		"Return: Token keyword, Expr value",
 	}, map[string]interface{}{"INTERFACE_CLASS": "Expr"})
 }
 

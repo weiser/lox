@@ -113,6 +113,9 @@ func (p *Parser) Statement() expr.StmtInterface {
 	if p.match(token.BREAK) {
 		return p.BreakStatement()
 	}
+	if p.match(token.RETURN) {
+		return p.ReturnStatement()
+	}
 	if p.match(token.FOR) {
 		return p.ForStatement()
 	}
@@ -129,6 +132,17 @@ func (p *Parser) Statement() expr.StmtInterface {
 		return &expr.Block{Statements: p.BlockStatement()}
 	}
 	return p.ExpressionStatement()
+}
+
+func (p *Parser) ReturnStatement() expr.StmtInterface {
+	keywrd := p.previous()
+	var value expr.ExprInterface
+	if !p.checkType(token.SEMICOLON) {
+		value = p.Expression()
+	}
+
+	p.consume(token.SEMICOLON, "Expect ';' after return value")
+	return &expr.Return{Keyword: keywrd, Value: value}
 }
 
 func (p *Parser) BreakStatement() expr.StmtInterface {

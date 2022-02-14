@@ -18,13 +18,24 @@ func (lf LoxFunction) Arity() int {
 	return len(lf.Declaration.Params)
 }
 
-func (lf LoxFunction) Call(i *Interpreter, arguments []interface{}) interface{} {
+func (lf LoxFunction) Call(i *Interpreter, arguments []interface{}) (retVal interface{}) {
+	defer func() {
+		if err := recover(); err != nil {
+			if v, ok := err.(ErrReturn); !ok {
+				panic(err)
+			} else {
+				// here is where we catch any return values from a return statement
+				retVal = v.Value
+			}
+		}
+
+	}()
 	environment := environment.MakeEnvironment(&Globals)
 	for i, p := range lf.Declaration.Params {
 		environment.Define(p.Lexeme, arguments[i])
 	}
 	i.ExecuteBlock(lf.Declaration.Body, environment)
-	return nil
+	return retVal
 }
 
 type LoxCallable interface {
@@ -33,6 +44,10 @@ type LoxCallable interface {
 }
 
 type ErrBreak struct {
+}
+
+type ErrReturn struct {
+	Value interface{}
 }
 
 func (e *ErrBreak) Error() string {
@@ -232,6 +247,14 @@ func (i *Interpreter) VisitVar(stmt *expr.Var) interface{} {
 
 	i.env.Define(stmt.Name.Lexeme, value)
 	return nil
+}
+
+func (i *Interpreter) VisitReturn(ret *expr.Return) interface{} {
+	if ret.Value != nil {
+		value := i.Evaluate(ret.Value)
+		panic(ErrReturn{Value: value})
+	}
+	panic(ErrReturn{})
 }
 
 func (i *Interpreter) VisitVariable(exp *expr.Variable) interface{} {

@@ -18,6 +18,7 @@ type StmtVisitorInterface interface {
 	VisitPrint(e *Print) interface{}
 	VisitWhile(e *While) interface{}
 	VisitVar(e *Var) interface{}
+	VisitReturn(e *Return) interface{}
 }
 
 func (o *Stmt) Accept(evi StmtVisitorInterface) interface{} {
@@ -91,4 +92,14 @@ type Var struct {
 
 func (o *Var) Accept(evi StmtVisitorInterface) interface{} {
 	return evi.VisitVar(o)
+}
+
+type Return struct {
+	*Stmt
+	Keyword Token
+	Value   ExprInterface
+}
+
+func (o *Return) Accept(evi StmtVisitorInterface) interface{} {
+	return evi.VisitReturn(o)
 }
