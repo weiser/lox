@@ -299,3 +299,35 @@ func TestFunction(t *testing.T) {
 		t.Errorf("expected a = 'hi, mom!', instead a = %v", a)
 	}
 }
+
+func TestClosures(t *testing.T) {
+	scanner := scanner.MakeScanner(`
+	fun makeCounter() { 
+		var i = 0;
+		fun count() {
+			i = i + 1;
+			return i;
+		}
+		return count;
+	}
+	
+	var counter = makeCounter();
+	var a = -1;
+	a = counter();
+	a = counter();
+	`)
+	parser := parser.Parser{Tokens: scanner.ScanTokens()}
+	stmts, err := parser.Parse()
+	if err != nil {
+		t.Errorf("didn't parse, %v", err)
+	}
+	i := MakeInterpreter()
+
+	(&i).Interpret(stmts)
+	var a float64
+	o, _ := (&i).env.Get("a")
+	a = o.(float64)
+	if a != 2 {
+		t.Errorf("expected a = 2, instead a = %v", a)
+	}
+}

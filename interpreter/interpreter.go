@@ -12,6 +12,7 @@ import (
 
 type LoxFunction struct {
 	Declaration expr.Function
+	Closure     environment.Environment
 }
 
 func (lf LoxFunction) Arity() int {
@@ -30,7 +31,7 @@ func (lf LoxFunction) Call(i *Interpreter, arguments []interface{}) (retVal inte
 		}
 
 	}()
-	environment := environment.MakeEnvironment(&Globals)
+	environment := environment.MakeEnvironment(&lf.Closure)
 	for i, p := range lf.Declaration.Params {
 		environment.Define(p.Lexeme, arguments[i])
 	}
@@ -227,7 +228,7 @@ func (i *Interpreter) VisitExpression(stmt *expr.Expression) interface{} {
 }
 
 func (i *Interpreter) VisitFunction(fxn *expr.Function) interface{} {
-	loxFxn := LoxFunction{Declaration: *fxn}
+	loxFxn := LoxFunction{Declaration: *fxn, Closure: i.env}
 	i.env.Define(fxn.Name.Lexeme, loxFxn)
 	return nil
 }
