@@ -153,6 +153,12 @@ func (r *Resolver) VisitBlock(block *expr.Block) interface{} {
 	return nil
 }
 
+func (r *Resolver) VisitClass(class *expr.Class) interface{} {
+	r.declare(class.Name)
+	r.define(class.Name)
+	return nil
+}
+
 func (r *Resolver) ResolveStatements(stmts []expr.StmtInterface) bool {
 	successfullyResolved := true
 	defer func() {

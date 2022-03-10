@@ -10,6 +10,14 @@ import (
 	"github.com/weiser/lox/token"
 )
 
+type LoxClass struct {
+	Name string
+}
+
+func (lc *LoxClass) String() string {
+	return lc.Name
+}
+
 type LoxFunction struct {
 	Declaration expr.Function
 	Closure     environment.Environment
@@ -313,6 +321,13 @@ func (i *Interpreter) Resolve(exp expr.ExprInterface, depth int) {
 
 func (i *Interpreter) VisitBlock(block *expr.Block) interface{} {
 	i.ExecuteBlock(block.Statements, environment.MakeEnvironment(&i.env))
+	return nil
+}
+
+func (i *Interpreter) VisitClass(class *expr.Class) interface{} {
+	i.env.Define(class.Name.Lexeme, nil)
+	klass := LoxClass{Name: class.Name.Lexeme}
+	i.env.Assign(klass.Name, klass)
 	return nil
 }
 
