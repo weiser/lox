@@ -12,6 +12,7 @@ type StmtInterface interface {
 type StmtVisitorInterface interface {
 	VisitStmt(e *Stmt) interface{}
 	VisitBlock(e *Block) interface{}
+	VisitClass(e *Class) interface{}
 	VisitExpression(e *Expression) interface{}
 	VisitFunction(e *Function) interface{}
 	VisitIf(e *If) interface{}
@@ -32,6 +33,16 @@ type Block struct {
 
 func (o *Block) Accept(evi StmtVisitorInterface) interface{} {
 	return evi.VisitBlock(o)
+}
+
+type Class struct {
+	*Stmt
+	Name    Token
+	Methods []StmtInterface
+}
+
+func (o *Class) Accept(evi StmtVisitorInterface) interface{} {
+	return evi.VisitClass(o)
 }
 
 type Expression struct {

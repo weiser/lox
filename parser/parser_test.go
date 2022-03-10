@@ -67,3 +67,15 @@ func TestForStmt(t *testing.T) {
 		t.Errorf("expected a while statement, got a %v", block.Statements[1])
 	}
 }
+
+func TestClassStmt(t *testing.T) {
+	scanner := scanner.MakeScanner(`class Test { t() {return 1;}}`)
+	toks := scanner.ScanTokens()
+	p := Parser{Tokens: toks}
+	stmts, _ := p.Parse()
+
+	_, ok := stmts[0].(*expr.Class)
+	if !ok {
+		t.Errorf("expected a Class statement, got a %v", stmts[0])
+	}
+}

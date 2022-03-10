@@ -43,6 +43,9 @@ func (p *Parser) Declaration() expr.StmtInterface {
 			}
 		}
 	}()
+	if p.match(token.CLASS) {
+		return p.ClassDeclaration()
+	}
 	if p.match(token.FUN) {
 		return p.Function("function")
 	}
@@ -50,6 +53,30 @@ func (p *Parser) Declaration() expr.StmtInterface {
 		return p.VarDeclaration()
 	}
 	return p.Statement()
+}
+
+func (p *Parser) ClassDeclaration() expr.StmtInterface {
+	name, err := p.consume(token.IDENTIFIER, "expect class name")
+	if err != nil {
+		panic(err)
+	}
+	_, errlb := p.consume(token.LEFT_BRACE, "expect '{' before class body")
+	if errlb != nil {
+		panic(errlb)
+	}
+
+	methods := make([]expr.StmtInterface, 0)
+	for !p.checkType(token.RIGHT_BRACE) && !p.isAtEnd() {
+		methods = append(methods, p.Function("method"))
+	}
+
+	_, errrb := p.consume(token.RIGHT_BRACE, "expect '}' after class body")
+	if errrb != nil {
+		panic(errrb)
+	}
+
+	return &expr.Class{Name: name, Methods: methods}
+
 }
 
 func (p *Parser) Function(kind string) expr.StmtInterface {
