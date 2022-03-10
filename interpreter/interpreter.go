@@ -56,7 +56,8 @@ func (e *ErrBreak) Error() string {
 }
 
 type Interpreter struct {
-	env environment.Environment
+	env    environment.Environment
+	Locals map[interface{}]int
 }
 
 var Globals environment.Environment
@@ -79,7 +80,7 @@ func InitGlobals() environment.Environment {
 }
 
 func MakeInterpreter() Interpreter {
-	return Interpreter{env: InitGlobals()}
+	return Interpreter{env: InitGlobals(), Locals: make(map[interface{}]int)}
 }
 
 func (i *Interpreter) VisitLiteral(exp *expr.Literal) interface{} {
@@ -259,6 +260,7 @@ func (i *Interpreter) VisitReturn(ret *expr.Return) interface{} {
 }
 
 func (i *Interpreter) VisitVariable(exp *expr.Variable) interface{} {
+	i.LookupVariable(exp.Name, exp)
 	v, err := i.env.Get(exp.Name.Lexeme)
 	if err == nil {
 		return v
@@ -266,12 +268,27 @@ func (i *Interpreter) VisitVariable(exp *expr.Variable) interface{} {
 	panic(err)
 }
 
+func (i *Interpreter) LookupVariable(name token.Token, exp *expr.Variable) (interface{}, error) {
+	distance := i.Locals[exp]
+
+	if distance != 0 {
+		return i.env.GetAt(distance, name.Lexeme), nil
+	} else {
+		return Globals.Get(name.Lexeme)
+	}
+}
+
+// todo: start on pg 188 11.4.2
 func (i *Interpreter) VisitAssign(exp *expr.Assign) interface{} {
 	value := i.Evaluate(exp.Value)
-	_, err := i.env.Assign(exp.Name.Lexeme, value)
-	if err != nil {
-		panic(err)
+
+	distance := i.Locals[exp]
+	if distance != 0 {
+		i.env.AssignAt(distance, exp.Name, value)
+	} else {
+		Globals.Assign(exp.Name.Lexeme, value)
 	}
+
 	return value
 }
 
@@ -288,6 +305,10 @@ func (i *Interpreter) Interpret(stmts []expr.StmtInterface) {
 
 func (i *Interpreter) Execute(stmt expr.StmtInterface) {
 	stmt.Accept(i)
+}
+
+func (i *Interpreter) Resolve(exp expr.ExprInterface, depth int) {
+	i.Locals[&exp] = depth
 }
 
 func (i *Interpreter) VisitBlock(block *expr.Block) interface{} {

@@ -7,6 +7,7 @@ import (
 
 	"github.com/weiser/lox/interpreter"
 	"github.com/weiser/lox/parser"
+	"github.com/weiser/lox/resolver"
 	"github.com/weiser/lox/scanner"
 	"github.com/weiser/lox/token"
 )
@@ -40,7 +41,11 @@ func Run(data string) {
 		p1 := parser.Parser{Tokens: toks}
 		fmt.Println(interpret.Evaluate(p1.Expression()))
 	} else {
-		interpret.Interpret(stmts)
+		resolver := resolver.Resolver{Interpreter: *interpret, CurrentFunction: resolver.NONE}
+		successfullyResolved := resolver.ResolveStatements(stmts)
+		if successfullyResolved {
+			interpret.Interpret(stmts)
+		}
 	}
 
 }
