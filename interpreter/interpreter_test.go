@@ -331,3 +331,29 @@ func TestClosures(t *testing.T) {
 		t.Errorf("expected a = 2, instead a = %v", a)
 	}
 }
+
+func TestClassInstanceMethods(t *testing.T) {
+	scanner := scanner.MakeScanner(`
+	class B {
+		m() {
+			return 1
+		}
+	}
+
+	var a = B().m()
+	`)
+	parser := parser.Parser{Tokens: scanner.ScanTokens()}
+	stmts, err := parser.Parse()
+	if err != nil {
+		t.Errorf("didn't parse, %v", err)
+	}
+	i := MakeInterpreter()
+
+	(&i).Interpret(stmts)
+	var a float64
+	o, _ := (&i).env.Get("a")
+	a = o.(float64)
+	if a != 1 {
+		t.Errorf("expected a = 1, instead a = %v", a)
+	}
+}

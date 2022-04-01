@@ -11,11 +11,60 @@ import (
 )
 
 type LoxClass struct {
-	Name string
+	Name    string
+	Methods map[string]LoxFunction
 }
 
-func (lc *LoxClass) String() string {
+/* loxclass needs to implement loxcallable so that we can do stuff like:
+```
+class A {}
+A();
+```
+to instantiate an instance of A
+
+*/
+func (lc LoxClass) Arity() int {
+	return 0
+}
+
+func (lc LoxClass) Call(i *Interpreter, arguments []interface{}) (retVal interface{}) {
+	instance := LoxInstance{Klass: lc, Fields: make(map[string]interface{})}
+	return instance
+}
+
+type LoxInstance struct {
+	Klass  LoxClass
+	Fields map[string]interface{}
+}
+
+func (li LoxInstance) String() string {
+	return li.Klass.Name + " instance"
+}
+
+func (li LoxInstance) Get(name token.Token) interface{} {
+	if v, ok := li.Fields[name.Lexeme]; ok {
+		return v
+	}
+
+	method, ok := li.Klass.FindMethod(name.Lexeme)
+	if ok {
+		return method
+	}
+
+	panic(fmt.Sprintf("%v: undefined property '%v'", name, name.Lexeme))
+}
+
+func (li LoxInstance) Set(name token.Token, value interface{}) {
+	li.Fields[name.Lexeme] = value
+}
+
+func (lc LoxClass) String() string {
 	return lc.Name
+}
+
+func (lc LoxClass) FindMethod(name string) (LoxFunction, bool) {
+	v, ok := lc.Methods[name]
+	return v, ok
 }
 
 type LoxFunction struct {
@@ -195,6 +244,15 @@ func (i *Interpreter) VisitCall(call *expr.Call) interface{} {
 	return fxn.Call(i, arguments)
 }
 
+func (i *Interpreter) VisitGet(get *expr.Get) interface{} {
+	obj := i.Evaluate(get.Object)
+	if li, ok := obj.(LoxInstance); ok {
+		return li.Get(get.Name)
+	}
+
+	panic(fmt.Sprintf("%v: only instances have properties", get.Name))
+}
+
 func (i *Interpreter) VisitUnary(exp *expr.Unary) interface{} {
 	right := i.Evaluate(exp.Right)
 
@@ -286,7 +344,6 @@ func (i *Interpreter) LookupVariable(name token.Token, exp *expr.Variable) (inte
 	}
 }
 
-// todo: start on pg 188 11.4.2
 func (i *Interpreter) VisitAssign(exp *expr.Assign) interface{} {
 	value := i.Evaluate(exp.Value)
 
@@ -326,7 +383,17 @@ func (i *Interpreter) VisitBlock(block *expr.Block) interface{} {
 
 func (i *Interpreter) VisitClass(class *expr.Class) interface{} {
 	i.env.Define(class.Name.Lexeme, nil)
-	klass := LoxClass{Name: class.Name.Lexeme}
+
+	methods := make(map[string]LoxFunction)
+	for _, method := range class.Methods {
+		decl, ok := method.(*expr.Function)
+		if ok {
+			function := LoxFunction{Declaration: *decl, Closure: i.env}
+			methods[decl.Name.Lexeme] = function
+		}
+	}
+
+	klass := LoxClass{Name: class.Name.Lexeme, Methods: methods}
 	i.env.Assign(klass.Name, klass)
 	return nil
 }
@@ -362,6 +429,18 @@ func (i *Interpreter) VisitLogical(logical *expr.Logical) interface{} {
 		}
 	}
 	return i.Evaluate(logical.Right)
+}
+
+func (i *Interpreter) VisitSet(set *expr.Set) interface{} {
+	object := i.Evaluate(set.Object)
+	li, ok := object.(LoxInstance)
+	if !ok {
+		panic(fmt.Sprintf("%v: only instances have fields", set.Name))
+	}
+	value := i.Evaluate(set.Value)
+	li.Set(set.Name, value)
+	return value
+
 }
 
 func (i *Interpreter) VisitWhile(stmt *expr.While) interface{} {

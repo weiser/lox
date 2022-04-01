@@ -17,9 +17,11 @@ type Stack struct {
 
 type FunctionType int
 
+// TODO: start on top of page 206
 const (
 	NONE FunctionType = iota
 	FUNCTION
+	METHOD
 )
 
 type Resolver struct {
@@ -66,6 +68,11 @@ func (r *Resolver) VisitCall(e *expr.Call) interface{} {
 	return nil
 }
 
+func (r *Resolver) VisitGet(get *expr.Get) interface{} {
+	r.resolveExpression(get)
+	return nil
+}
+
 func (r *Resolver) VisitGrouping(e *expr.Grouping) interface{} {
 	r.resolveExpression(e.Expression)
 	return nil
@@ -78,6 +85,12 @@ func (r *Resolver) VisitLiteral(e *expr.Literal) interface{} {
 func (r *Resolver) VisitLogical(e *expr.Logical) interface{} {
 	r.resolveExpression(e.Right)
 	r.resolveExpression(e.Left)
+	return nil
+}
+
+func (r *Resolver) VisitSet(exp *expr.Set) interface{} {
+	r.resolveExpression(exp.Value)
+	r.resolveExpression(exp.Object)
 	return nil
 }
 
@@ -156,6 +169,11 @@ func (r *Resolver) VisitBlock(block *expr.Block) interface{} {
 func (r *Resolver) VisitClass(class *expr.Class) interface{} {
 	r.declare(class.Name)
 	r.define(class.Name)
+
+	for _, method := range class.Methods {
+		fxn := method.(*expr.Function)
+		r.resolveFunction(fxn, METHOD)
+	}
 	return nil
 }
 

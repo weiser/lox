@@ -302,6 +302,8 @@ func (p *Parser) Assignment() expr.ExprInterface {
 		if e, ok := exp.(*expr.Variable); ok {
 			identifier := e.Name
 			return &expr.Assign{Name: identifier, Value: value}
+		} else if get, ok1 := exp.(*expr.Get); ok1 {
+			return &expr.Set{Object: get.Object, Name: get.Name, Value: value}
 		}
 
 		panic(MakeParserError(equals, "Invalid assignment target"))
@@ -387,9 +389,15 @@ func (p *Parser) Unary() expr.ExprInterface {
 func (p *Parser) Call() expr.ExprInterface {
 	exp := p.Primary()
 
-	for true {
+	for {
 		if p.match(token.LEFT_PAREN) {
 			exp = p.FinishCall(exp)
+		} else if p.match(token.DOT) {
+			name, err := p.consume(token.IDENTIFIER, "Expect property name after '.'.")
+			if err != nil {
+				panic(err)
+			}
+			exp = &expr.Get{Object: exp, Name: name}
 		} else {
 			break
 		}
