@@ -1,5 +1,5 @@
 # lox
-implementation of Lox in Crafting Compilers by Nystrom
+implementation of Lox in Crafting Compilers, Part 1 (the tree-walk interpreter) by Nystrom
 
 ## How to build interpreter
 
